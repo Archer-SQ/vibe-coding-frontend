@@ -1,0 +1,136 @@
+@primary-gradient: linear-gradient(90deg, #3b82f6 0%, #a855f7 100%);
+@rank-gradient: linear-gradient(90deg, #34d399 0%, #60a5fa 100%);
+
+.start-bg {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(ellipse at center, #1e2746 0%, #0a1437 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.start-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px 32px 32px;
+  border-radius: 24px;
+  background: rgba(20, 30, 60, 0.7);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+
+.start-title {
+  font-size: 48px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px #000a;
+}
+
+.start-desc {
+  font-size: 20px;
+  color: #b3c7f9;
+  margin-bottom: 32px;
+}
+
+.start-icon {
+  margin-bottom: 32px;
+  animation: float 2.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+.start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 260px;
+  margin-bottom: 32px;
+}
+
+.start-btn {
+  font-size: 20px;
+  font-weight: 500;
+  border-radius: 32px;
+  height: 56px;
+  transition: background 0.3s;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.start-btn-play {
+  background: @primary-gradient;
+}
+
+.start-btn-play:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+}
+
+.start-btn-rank {
+  background: @rank-gradient;
+}
+
+.start-btn-rank:hover {
+  background: linear-gradient(90deg, #059669 0%, #2563eb 100%);
+}
+
+.start-tip {
+  margin-top: 12px;
+  font-size: 16px;
+  color: #b3c7f9;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.start-plane-img {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 1440px) {
+  .start-title {
+    font-size: 40px;
+  }
+  .start-content {
+    padding: 36px 24px 24px 24px;
+  }
+  .start-btns {
+    width: 220px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .start-title {
+    font-size: 32px;
+  }
+  .start-content {
+    padding: 24px 12px 12px 12px;
+  }
+  .start-btns {
+    width: 160px;
+  }
+  .start-desc {
+    font-size: 16px;
+  }
+  .start-btn {
+    font-size: 16px;
+    height: 44px;
+  }
+}

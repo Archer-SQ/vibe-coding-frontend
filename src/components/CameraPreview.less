@@ -1,0 +1,310 @@
+.camera-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 400px;
+
+  .ant-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .ant-card-head {
+      padding: 8px 16px;
+      min-height: 40px;
+      border-bottom: 1px solid #f0f0f0;
+
+      .ant-card-head-title {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    .ant-card-body {
+      padding: 12px;
+    }
+  }
+
+  // 摄像头显示区域
+  .camera-display {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+
+    .camera-active {
+      position: relative;
+      width: 100%;
+      height: 100%;
+
+      .camera-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .camera-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .camera-status {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 4px;
+        color: white;
+        font-size: 12px;
+
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #52c41a;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      }
+    }
+
+    .camera-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      color: #999;
+
+      .camera-inactive {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+
+        span {
+          font-size: 14px;
+        }
+      }
+
+      .camera-error {
+        color: #ff4d4f;
+        font-size: 14px;
+      }
+    }
+  }
+
+  // 摄像头控制按钮
+  .camera-controls {
+    .ant-btn {
+      font-size: 12px;
+      height: 28px;
+      padding: 0 12px;
+    }
+  }
+
+  // 手势状态卡片
+  .gesture-status-card {
+    .gesture-info {
+      .gesture-indicator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 6px;
+        border: 2px solid #f0f0f0;
+        transition: all 0.3s ease;
+
+        &.gesture-shoot {
+          border-color: #ff4d4f;
+          background: rgba(255, 77, 79, 0.1);
+        }
+
+        &.gesture-move {
+          border-color: #52c41a;
+          background: rgba(82, 196, 26, 0.1);
+        }
+
+        &.gesture-pause {
+          border-color: #fa8c16;
+          background: rgba(250, 140, 22, 0.1);
+        }
+
+        &.gesture-none {
+          border-color: #d9d9d9;
+          background: rgba(0, 0, 0, 0.02);
+        }
+
+        .gesture-icon {
+          font-size: 24px;
+          min-width: 32px;
+          text-align: center;
+        }
+
+        .gesture-details {
+          flex: 1;
+
+          .gesture-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+
+          .gesture-confidence {
+            font-size: 12px;
+            color: #666;
+          }
+        }
+      }
+    }
+  }
+
+  // 游戏动作卡片
+  .game-actions-card {
+    .action-indicators {
+      display: flex;
+      gap: 12px;
+
+      .action-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 12px 8px;
+        border-radius: 6px;
+        border: 2px solid #f0f0f0;
+        transition: all 0.3s ease;
+
+        &.active {
+          border-color: #1890ff;
+          background: rgba(24, 144, 255, 0.1);
+          transform: scale(1.05);
+
+          .action-icon {
+            animation: bounce 0.6s ease;
+          }
+        }
+
+        .action-icon {
+          font-size: 20px;
+        }
+
+        .action-label {
+          font-size: 12px;
+          color: #666;
+        }
+
+        @keyframes bounce {
+          0%, 20%, 60%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-10px); }
+          80% { transform: translateY(-5px); }
+        }
+      }
+    }
+  }
+
+  // 控制设置卡片
+  .control-settings-card {
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .setting-label {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .ant-slider {
+        flex: 1;
+        margin: 0 16px;
+      }
+
+      .position-display {
+        font-size: 12px;
+        color: #666;
+        font-family: monospace;
+        background: #f5f5f5;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  // 手势控制说明卡片
+  .gesture-guide-card {
+    .gesture-guide {
+      .guide-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .guide-icon {
+          font-size: 18px;
+          min-width: 24px;
+          text-align: center;
+        }
+
+        .guide-text {
+          font-size: 13px;
+          color: #666;
+        }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .camera-preview-container {
+    max-width: 100%;
+
+    .camera-display {
+      height: 160px;
+    }
+
+    .action-indicators {
+      flex-direction: column;
+      gap: 8px;
+
+      .action-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 8px 12px;
+
+        .action-icon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}

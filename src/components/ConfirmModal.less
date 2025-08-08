@@ -1,0 +1,163 @@
+.confirm-modal {
+  .ant-modal-content {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .ant-modal-body {
+    padding: 0;
+  }
+}
+
+.confirm-modal-content {
+  background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 25%, #6366f1 50%, #4f46e5 75%, #3b82f6 100%);
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  .confirm-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+
+    .icon-trophy,
+    .icon-home {
+      font-size: 36px;
+      color: #fff;
+    }
+
+    .icon-trophy {
+      color: #ffd700;
+    }
+
+    .icon-home {
+      color: #e0e0e0;
+    }
+  }
+
+  .confirm-title {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .confirm-description {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 32px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .confirm-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .confirm-btn {
+      height: 48px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed 0%, #6366f1 30%, #4f46e5 60%, #1e40af 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.6);
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 30%, #6366f1 60%, #3b82f6 100%);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      .anticon {
+        margin-right: 8px;
+      }
+    }
+
+    .cancel-btn {
+      height: 48px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 500;
+      background: rgba(59, 130, 246, 0.2);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(59, 130, 246, 0.4);
+        border-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(30, 27, 75, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      .anticon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .confirm-modal-content {
+    padding: 30px 20px;
+    margin: 20px;
+
+    .confirm-icon {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+
+      .icon-trophy,
+      .icon-home {
+        font-size: 28px;
+      }
+    }
+
+    .confirm-title {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .confirm-description {
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .confirm-buttons {
+      .confirm-btn,
+      .cancel-btn {
+        height: 44px;
+        font-size: 14px;
+      }
+    }
+  }
+}
