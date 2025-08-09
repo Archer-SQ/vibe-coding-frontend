@@ -9,7 +9,7 @@
     "jsx": "react-jsx",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["jest", "@testing-library/jest-dom", "vite/client"],
+    "types": ["jest", "@testing-library/jest-dom", "vite/client", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
