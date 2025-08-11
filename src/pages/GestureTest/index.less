@@ -1,0 +1,35 @@
+.gesture-test {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .test-header {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .test-content {
+    .ant-card {
+      .ant-card-head {
+        background: #fafafa;
+      }
+    }
+
+    .video-container {
+      position: relative;
+      display: inline-block;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .gesture-test {
+    padding: 16px;
+
+    .test-content {
+      > div {
+        flex-direction: column !important;
+      }
+    }
+  }
+}

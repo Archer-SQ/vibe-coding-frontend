@@ -1,0 +1,148 @@
+.gesture-debug {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .debug-header {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .debug-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .ant-card {
+      .ant-card-head {
+        background: #fafafa;
+      }
+    }
+
+    .control-panel {
+      .ant-card-body {
+        text-align: center;
+      }
+    }
+
+    .environment-info {
+      .ant-descriptions-item-label {
+        font-weight: 500;
+        width: 120px;
+      }
+    }
+
+    .status-monitor {
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+
+        .status-item {
+          padding: 12px;
+          border: 1px solid #f0f0f0;
+          border-radius: 6px;
+          text-align: center;
+
+          .ant-typography {
+            margin-bottom: 8px;
+          }
+        }
+      }
+    }
+
+    .gesture-data {
+      .ant-descriptions-item-label {
+        font-weight: 500;
+        width: 100px;
+      }
+
+      .ant-progress {
+        margin: 0;
+      }
+    }
+
+    .video-preview {
+      .video-container {
+        position: relative;
+        text-align: center;
+
+        video {
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-placeholder {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          border: 2px dashed #d9d9d9;
+        }
+      }
+    }
+
+    .debug-logs {
+      .logs-container {
+        max-height: 300px;
+        overflow-y: auto;
+        background: #fafafa;
+        padding: 12px;
+        border-radius: 6px;
+
+        .log-item {
+          margin-bottom: 4px;
+          padding: 4px 8px;
+          border-radius: 4px;
+
+          &.info {
+            background: #f6ffed;
+            border-left: 3px solid #52c41a;
+          }
+
+          &.warn {
+            background: #fffbe6;
+            border-left: 3px solid #faad14;
+          }
+
+          &.error {
+            background: #fff2f0;
+            border-left: 3px solid #ff4d4f;
+          }
+
+          .ant-typography {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.4;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .gesture-debug {
+    padding: 16px;
+
+    .debug-content {
+      .status-monitor {
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .environment-info,
+      .gesture-data {
+        .ant-descriptions {
+          .ant-descriptions-item {
+            padding-bottom: 8px;
+          }
+        }
+      }
+    }
+  }
+}

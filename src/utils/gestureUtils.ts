@@ -268,7 +268,6 @@ export const recognizeGesture = (landmarks: Point3D[] | null): GestureState => {
     }
     
   } catch (error) {
-    console.error('手势识别错误:', error)
     return {
       type: GestureType.NONE,
       confidence: 0,
