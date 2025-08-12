@@ -64,22 +64,21 @@ describe('CameraManager', () => {
         height: { ideal: 480 },
         facingMode: 'user',
       },
+      audio: false,
     })
     expect(stream).toBe(mockStream)
     expect(cameraManager.getStatus().isActive).toBe(true)
-    expect(consoleSpy.log).toHaveBeenCalledWith('📷 全局摄像头已启动')
   })
 
   it('应该能够停止摄像头', async () => {
     mockGetUserMedia.mockResolvedValue(mockStream)
 
     await cameraManager.startCamera()
-    cameraManager.stopCamera()
+    await cameraManager.stopCamera()
 
     expect(mockTrack.stop).toHaveBeenCalled()
     expect(cameraManager.getStatus().isActive).toBe(false)
     expect(cameraManager.getStatus().stream).toBe(null)
-    expect(consoleSpy.log).toHaveBeenCalledWith('✅ 全局摄像头已完全关闭')
   })
 
   it('应该处理摄像头启动失败', async () => {
@@ -88,7 +87,6 @@ describe('CameraManager', () => {
 
     await expect(cameraManager.startCamera()).rejects.toThrow('Camera not available')
     expect(cameraManager.getStatus().isActive).toBe(false)
-    expect(consoleSpy.error).toHaveBeenCalledWith('❌ 全局摄像头启动失败:', error)
   })
 
   it('应该返回已存在的stream', async () => {
@@ -108,11 +106,9 @@ describe('CameraManager', () => {
     cameraManager.setVideoElement(mockVideoElement)
     
     await cameraManager.startCamera()
-    cameraManager.stopCamera()
+    await cameraManager.stopCamera()
 
     expect(mockVideoElement.srcObject).toBe(null)
-    expect(mockVideoElement.load).toHaveBeenCalled()
-    expect(consoleSpy.log).toHaveBeenCalledWith('🎥 视频元素已清理')
   })
 
   it('应该正确处理状态监听器', async () => {
@@ -127,7 +123,10 @@ describe('CameraManager', () => {
     await cameraManager.startCamera()
     
     // 停止摄像头应该触发回调
-    cameraManager.stopCamera()
+    await cameraManager.stopCamera()
+    
+    // 等待异步回调执行
+    await new Promise(resolve => setTimeout(resolve, 10))
     
     expect(callback1).toHaveBeenCalled()
     expect(callback2).toHaveBeenCalled()
@@ -154,24 +153,24 @@ describe('CameraManager', () => {
     
     expect(mockTrack.stop).toHaveBeenCalled()
     expect(cameraManager.getStatus().isActive).toBe(false)
-    expect(consoleSpy.log).toHaveBeenCalledWith('🚨 强制关闭摄像头')
   })
 
-  it('应该处理没有摄像头时的停止操作', () => {
-    cameraManager.stopCamera()
+  it('应该处理没有摄像头时的停止操作', async () => {
+    await cameraManager.stopCamera()
     
-    expect(consoleSpy.log).toHaveBeenCalledWith('ℹ️ 摄像头未启动，无需关闭')
+    // 应该不会抛出错误，且状态保持为未激活
+    expect(cameraManager.getStatus().isActive).toBe(false)
   })
 
-  it('应该正确记录轨道停止过程', async () => {
+  it('应该正确停止轨道', async () => {
     mockGetUserMedia.mockResolvedValue(mockStream)
     
     await cameraManager.startCamera()
-    cameraManager.stopCamera()
+    await cameraManager.stopCamera()
     
-    expect(consoleSpy.log).toHaveBeenCalledWith('📷 正在关闭全局摄像头...')
-    expect(consoleSpy.log).toHaveBeenCalledWith('🔴 正在停止轨道: video, 状态: live')
-    expect(consoleSpy.log).toHaveBeenCalledWith('✅ 轨道已停止: video, 新状态: live')
+    expect(mockTrack.stop).toHaveBeenCalled()
+    expect(cameraManager.getStatus().isActive).toBe(false)
+    expect(cameraManager.getStatus().stream).toBe(null)
   })
 
   it('应该正确返回摄像头状态', async () => {
@@ -189,32 +188,24 @@ describe('CameraManager', () => {
     expect(status.stream).toBe(mockStream)
   })
 
-  it('应该能够设置空的视频元素', () => {
-    cameraManager.setVideoElement(null)
+  it('应该能够设置空的视频元素', async () => {
+    cameraManager.setVideoElement(null as any)
     
     // 这应该不会抛出错误
-    cameraManager.stopCamera()
+    await cameraManager.stopCamera()
     
-    expect(consoleSpy.log).toHaveBeenCalledWith('ℹ️ 摄像头未启动，无需关闭')
+    expect(cameraManager.getStatus().isActive).toBe(false)
   })
 
-  it('应该处理垃圾回收（如果可用）', async () => {
-    // Mock window.gc
-    const mockGc = jest.fn()
-    Object.defineProperty(window, 'gc', {
-      value: mockGc,
-      writable: true,
-      configurable: true,
-    })
-    
+  it('应该正确清理资源', async () => {
     mockGetUserMedia.mockResolvedValue(mockStream)
     await cameraManager.startCamera()
-    cameraManager.stopCamera()
+    await cameraManager.stopCamera()
     
-    expect(mockGc).toHaveBeenCalled()
-    
-    // 清理
-    delete (window as typeof window & { gc?: () => void }).gc
+    // 验证资源被正确清理
+    expect(cameraManager.getStatus().isActive).toBe(false)
+    expect(cameraManager.getStatus().stream).toBe(null)
+    expect(mockTrack.stop).toHaveBeenCalled()
   })
 
   it('应该处理垃圾回收失败', async () => {

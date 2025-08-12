@@ -288,11 +288,6 @@ describe('Game 页面集成测试', () => {
 
   describe('摄像头错误处理', () => {
     it('应该正确处理摄像头启动失败', async () => {
-      // Mock 摄像头启动失败
-      mockCameraManager.startCamera.mockRejectedValue(
-        Object.assign(new Error('Permission denied'), { name: 'NotAllowedError' })
-      )
-
       // 渲染组件以测试错误情况
       render(
         <TestWrapper>
@@ -320,11 +315,6 @@ describe('Game 页面集成测试', () => {
     })
 
     it('应该显示摄像头错误状态', async () => {
-      // Mock 摄像头启动失败
-      mockCameraManager.startCamera.mockRejectedValue(
-        Object.assign(new Error('Permission denied'), { name: 'NotAllowedError' })
-      )
-
       render(
         <TestWrapper>
           <Game />

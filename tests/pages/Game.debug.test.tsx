@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import '@testing-library/jest-dom'
 import Game from '../../src/pages/Game'
@@ -40,7 +40,7 @@ jest.mock('../../src/utils/cameraManager', () => {
     getStatus: jest.fn().mockReturnValue({ isActive: false, stream: null }),
     forceStop: jest.fn(),
   }
-  
+
   return {
     cameraManager: mockCameraManager,
   }
@@ -85,11 +85,6 @@ Object.defineProperty(HTMLVideoElement.prototype, 'load', {
   value: jest.fn(),
 })
 
-// 测试组件包装器
-const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <BrowserRouter>{children}</BrowserRouter>
-)
-
 describe('Game 组件调试测试', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -98,39 +93,35 @@ describe('Game 组件调试测试', () => {
   })
 
   test('Game 组件能够正常渲染', async () => {
-    let container: HTMLElement
 
-    try {
-      const result = render(
-        <BrowserRouter>
-          <Game />
-        </BrowserRouter>
-      )
-      container = result.container
+    const result = render(
+      <BrowserRouter>
+        <Game />
+      </BrowserRouter>,
+    )
+    const container = result.container
 
-      // 等待组件完全渲染
-      await waitFor(() => {
+    // 等待组件完全渲染
+    await waitFor(
+      () => {
         expect(container.firstChild).toBeInTheDocument()
-      }, { timeout: 5000 })
+      },
+      { timeout: 5000 },
+    )
 
-      // 检查是否有任何元素被渲染
-      const allElements = container.querySelectorAll('*')
+    // 检查是否有任何元素被渲染
+    const allElements = container.querySelectorAll('*')
 
-      // 检查按钮数量
-      const buttons = container.querySelectorAll('button')
+    // 检查按钮数量
+    const buttons = container.querySelectorAll('button')
 
-      buttons.forEach((button, index) => {
-        expect(button).toBeInTheDocument()
-      })
+    buttons.forEach((button, index) => {
+      expect(button).toBeInTheDocument()
+    })
 
-      // 基本断言
-      expect(container.firstChild).toBeInTheDocument()
-      expect(allElements.length).toBeGreaterThan(0)
-      expect(buttons.length).toBeGreaterThan(0)
-
-    } catch (error) {
-      // 如果渲染失败，记录错误但不让测试失败
-      throw error
-    }
+    // 基本断言
+    expect(container.firstChild).toBeInTheDocument()
+    expect(allElements.length).toBeGreaterThan(0)
+    expect(buttons.length).toBeGreaterThan(0)
   })
 })

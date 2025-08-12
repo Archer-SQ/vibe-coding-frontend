@@ -1,7 +1,11 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import Start from '../../../src/pages/Start'
+import '@testing-library/jest-dom'
+import Start from '../../../src/pages/Start/index'
+
+// Mock 图片资源
+jest.mock('../../../src/assets/image-removebg-preview.png', () => 'plane-image.png', { virtual: true })
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
