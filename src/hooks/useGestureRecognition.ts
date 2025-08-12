@@ -166,7 +166,10 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       const hands = new HandsConstructor({
         locateFile: (file: string) => {
           const url = `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-          console.log(`📁 加载MediaPipe文件: ${file} -> ${url}`);
+          // 只在首次加载时打印文件信息，避免重复打印
+          if (file === 'hands_solution_simd_wasm_bin.js') {
+            console.log(`📁 加载MediaPipe核心文件: ${file}`);
+          }
           return url;
         },
       })
@@ -212,14 +215,11 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     (results: Results) => {
       // 确保MediaPipe已完全初始化
       if (!isMediaPipeInitializedRef.current) {
-        console.log('useGestureRecognition - MediaPipe not fully initialized, skipping results')
         return
       }
       
-      console.log('useGestureRecognition - onHandsResults called, hands detected:', results.multiHandLandmarks?.length || 0)
-      
       if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
-        // 没有检测到手部，重置状态
+        // 没有检测到手部，重置手势状态但保持最后的手部位置
         setGestureState({
           type: GestureType.NONE,
           confidence: 0,
@@ -229,6 +229,16 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
           move: { x: 0, y: 0 },
           actions: { shoot: false, pause: false },
         })
+        
+        // 保持最后有效的手部位置，只清空关键点数据
+        // 这样飞机就不会自动回到中心，而是停留在失去检测时的位置
+        const preservedPosition = {
+          x: stableHandPositionRef.current.x, // 保持最后的x位置
+          y: stableHandPositionRef.current.y, // 保持最后的y位置
+          landmarks: [], // 清空关键点数据，用于手势连线图的隐藏
+        }
+        stableHandPositionRef.current = preservedPosition
+        setHandPosition(preservedPosition)
         return
       }
 
@@ -247,22 +257,37 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
         point.z,
       ])
 
-      // 调试信息
-      console.log('useGestureRecognition - raw landmarks count:', landmarks.length)
-      console.log('useGestureRecognition - converted landmarks count:', landmarksArray.length)
-
       // 动态平滑更新手部位置
       const deltaX = Math.abs(centerX - handPosition.x)
       const deltaY = Math.abs(centerY - handPosition.y)
       const maxDelta = Math.max(deltaX, deltaY)
 
-      // 快速移动时减少平滑，提高响应速度
-      const dynamicSmoothingFactor = maxDelta > 0.1 ? 0.9 : config.smoothingFactor
+      // 检测是否是手势重新进入（关键点从空变为有数据）
+      const isReEntering = (!stableHandPositionRef.current.landmarks || stableHandPositionRef.current.landmarks.length === 0) && landmarksArray.length > 0
+
+      // 优化平滑因子计算
+      let dynamicSmoothingFactor
+      if (isReEntering) {
+        // 手势重新进入时，根据位置差距动态调整
+        if (maxDelta > 0.3) {
+          // 位置差距很大，快速跟上
+          dynamicSmoothingFactor = 0.95
+        } else if (maxDelta > 0.15) {
+          // 位置差距中等，中等速度跟上
+          dynamicSmoothingFactor = 0.8
+        } else {
+          // 位置差距较小，正常跟上
+          dynamicSmoothingFactor = 0.6
+        }
+      } else {
+        // 正常跟踪时的平滑处理
+        dynamicSmoothingFactor = maxDelta > 0.1 ? 0.9 : config.smoothingFactor
+      }
 
       // 对关键点数据也进行平滑处理
       let smoothedLandmarks = landmarksArray
-      if (stableHandPositionRef.current.landmarks && stableHandPositionRef.current.landmarks.length === landmarksArray.length) {
-        // 对每个关键点进行平滑处理
+      if (!isReEntering && stableHandPositionRef.current.landmarks && stableHandPositionRef.current.landmarks.length === landmarksArray.length) {
+        // 正常跟踪时进行平滑处理
         smoothedLandmarks = landmarksArray.map((newPoint, index) => {
           const oldPoint = stableHandPositionRef.current.landmarks![index]
           return [
@@ -272,21 +297,18 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
           ]
         })
       }
+      // 重新进入时直接使用新的关键点数据，不进行平滑处理
 
       // 更新手部位置状态，确保包含平滑处理后的关键点数据
       const updatedPosition = {
-        x: stableHandPositionRef.current.x + (centerX - stableHandPositionRef.current.x) * dynamicSmoothingFactor,
-        y: stableHandPositionRef.current.y + (centerY - stableHandPositionRef.current.y) * dynamicSmoothingFactor,
+        x: isReEntering ? centerX : stableHandPositionRef.current.x + (centerX - stableHandPositionRef.current.x) * dynamicSmoothingFactor,
+        y: isReEntering ? centerY : stableHandPositionRef.current.y + (centerY - stableHandPositionRef.current.y) * dynamicSmoothingFactor,
         landmarks: smoothedLandmarks,
       }
 
       // 同时更新引用和状态
       stableHandPositionRef.current = updatedPosition
       setHandPosition(updatedPosition)
-
-      // 调试信息 - 确认状态更新
-      console.log('useGestureRecognition - updated position landmarks count:', updatedPosition.landmarks.length)
-      console.log('useGestureRecognition - stable ref landmarks count:', stableHandPositionRef.current.landmarks?.length || 0)
 
       // 手势识别
       if (landmarks.length >= 21) {
@@ -393,10 +415,25 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
    */
   const startCamera = useCallback(async (): Promise<void> => {
     try {
+      // 检查是否已经启动，避免重复初始化
+      const globalStatus = cameraManager.getStatus()
+      if (globalStatus.isActive && handsRef.current && isMediaPipeInitializedRef.current) {
+        console.log('📹 摄像头和MediaPipe已经启动，跳过重复初始化');
+        setCameraState({
+          isConnected: true,
+          isActive: true,
+        })
+        // 确保手势识别也在运行
+        setTimeout(() => {
+          startGestureRecognition()
+        }, 100)
+        return
+      }
+
       console.log('🚀 开始启动摄像头和手势识别...');
       
-      // 清理旧的MediaPipe实例
-      if (handsRef.current) {
+      // 只有在需要时才清理旧的MediaPipe实例
+      if (handsRef.current && !isMediaPipeInitializedRef.current) {
         console.log('🧹 清理旧的MediaPipe实例...');
         try {
           handsRef.current.close()
@@ -407,10 +444,14 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
         isMediaPipeInitializedRef.current = false
       }
 
-      // 启动全局摄像头
-      console.log('📹 启动摄像头...');
-      await cameraManager.startCamera()
-      console.log('✅ 摄像头启动成功');
+      // 启动全局摄像头（如果尚未启动）
+      if (!globalStatus.isActive) {
+        console.log('📹 启动摄像头...');
+        await cameraManager.startCamera()
+        console.log('✅ 摄像头启动成功');
+      } else {
+        console.log('📹 摄像头已经启动');
+      }
 
       // 设置视频元素
       if (videoRef.current) {
@@ -454,9 +495,13 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
         isActive: true,
       })
 
-      // 重新初始化MediaPipe
-      console.log('🤖 初始化MediaPipe...');
-      await initializeHands()
+      // 只有在MediaPipe未初始化时才初始化
+      if (!handsRef.current || !isMediaPipeInitializedRef.current) {
+        console.log('🤖 初始化MediaPipe...');
+        await initializeHands()
+      } else {
+        console.log('🤖 MediaPipe已经初始化');
+      }
 
       // 延迟启动手势识别，确保摄像头和MediaPipe完全就绪
       console.log('⏰ 延迟启动手势识别...');
@@ -481,6 +526,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
    * 停止摄像头
    */
   const stopCamera = useCallback(async (): Promise<void> => {
+    console.log('🛑 停止摄像头和手势识别...');
+    
     // 停止动画帧
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
@@ -497,6 +544,9 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       handsRef.current = null
     }
 
+    // 重置MediaPipe初始化状态
+    isMediaPipeInitializedRef.current = false
+
     // 清理视频元素
     if (videoRef.current) {
       videoRef.current.srcObject = null
@@ -511,6 +561,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       isActive: false,
     })
     streamRef.current = null
+    
+    console.log('✅ 摄像头和手势识别已停止');
   }, [])
 
   /**
@@ -529,22 +581,34 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     }
 
     if (!config.enableGesture) {
+      console.log('🚫 手势识别已禁用，跳过启动');
       return
     }
 
     if (!globalStatus.isActive) {
+      console.log('🚫 摄像头未激活，跳过手势识别启动');
       return
     }
     
     if (!handsRef.current) {
+      console.log('🚫 MediaPipe未初始化，跳过手势识别启动');
       return
     }
+
+    // 确保清理之前的动画帧
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+
+    console.log('🎯 启动手势识别处理循环...');
 
     const processFrame = async () => {
       // 使用全局状态检查，确保状态一致性
       const globalStatus = cameraManager.getStatus()
       
       if (!videoRef.current || !globalStatus.isActive || !handsRef.current) {
+        console.log('🚫 手势识别循环条件不满足，停止处理');
         return
       }
 
@@ -562,6 +626,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       } catch (error) {
         // 只有在非预期错误时才更新错误状态
         if (error instanceof Error && !error.message.includes('buffer')) {
+          console.error('❌ MediaPipe处理帧时出错:', error.message);
           setCameraState(prev => ({
             ...prev,
             error: error.message
@@ -718,14 +783,22 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     const globalStatus = cameraManager.getStatus()
     
     if (config.enableGesture && globalStatus.isActive) {
-      startGestureRecognition()
+      // 确保清理之前的动画帧
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
+      }
+      // 延迟启动手势识别，确保状态同步
+      setTimeout(() => {
+        startGestureRecognition()
+      }, 100)
     } else {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
         animationFrameRef.current = null
       }
     }
-  }, [config.enableGesture, cameraState.isActive])
+  }, [config.enableGesture, cameraState.isActive, startGestureRecognition])
 
   return {
     // 状态

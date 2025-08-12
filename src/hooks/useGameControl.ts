@@ -114,6 +114,10 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
   const lastPositionRef = useRef<PlayerPosition>({ x: 50, y: 80 })
   const smoothingFactor = 0.3 // 平滑因子，值越小越平滑
 
+  // 快速跟踪模式（用于手势重新进入时）
+  const fastTrackingRef = useRef<{ active: boolean; startTime: number }>({ active: false, startTime: 0 })
+  const FAST_TRACKING_DURATION = 500 // 快速跟踪模式持续时间（毫秒）
+
   // 动作防抖
   const actionDebounceRef = useRef<{ [key: string]: number }>({})
   const ACTION_DEBOUNCE_TIME = 100 // 动作防抖时间（毫秒）- 减少延迟以提高响应速度
@@ -177,7 +181,13 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
    */
   const handlePlayerMovement = useCallback(() => {
     // 检查手势状态和手部位置是否有效
-    if (!handPosition || !handPosition.x || !handPosition.y) {
+    // 修改检查逻辑：只有在检测到有效手势且有关键点数据时才移动飞机
+    if (!handPosition || 
+        typeof handPosition.x !== 'number' || 
+        typeof handPosition.y !== 'number' ||
+        !handPosition.landmarks || 
+        handPosition.landmarks.length === 0) {
+      // 没有有效的手势检测数据，飞机保持在当前位置不动
       return
     }
 
@@ -208,9 +218,29 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
       const deltaY = Math.abs(boundedY - lastPositionRef.current.y)
       const maxDelta = Math.max(deltaX, deltaY)
       
-      // 根据手势类型调整平滑因子
+      // 检测是否是手势重新进入（位置差距很大）
+      const isLargeJump = maxDelta > 30 // 位置差距超过30%认为是重新进入
+      const currentTime = Date.now()
+      
+      // 管理快速跟踪模式
+      if (isLargeJump && !fastTrackingRef.current.active) {
+        // 启动快速跟踪模式
+        fastTrackingRef.current = { active: true, startTime: currentTime }
+      } else if (fastTrackingRef.current.active && 
+                 currentTime - fastTrackingRef.current.startTime > FAST_TRACKING_DURATION) {
+        // 快速跟踪模式超时，关闭
+        fastTrackingRef.current.active = false
+      }
+      
+      // 根据手势类型、位置差距和快速跟踪模式调整平滑因子
       let dynamicSmoothingFactor
-      if (gestureState.type === GestureType.FIST) {
+      if (fastTrackingRef.current.active) {
+        // 快速跟踪模式：极高响应速度
+        dynamicSmoothingFactor = 0.98
+      } else if (isLargeJump) {
+        // 大幅位置跳跃时（通常是重新进入），快速响应
+        dynamicSmoothingFactor = 0.95
+      } else if (gestureState.type === GestureType.FIST) {
         // 握拳时稍微平滑一些，保持射击稳定性
         dynamicSmoothingFactor = maxDelta > 15 ? 0.7 : 0.4
       } else {

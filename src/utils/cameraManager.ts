@@ -136,6 +136,19 @@ class CameraManager {
    * 获取摄像头状态
    */
   getStatus() {
+    // 检查MediaStream的实际状态
+    if (this.stream && this.isActive) {
+      const tracks = this.stream.getTracks()
+      const hasActiveTracks = tracks.some(track => track.readyState === 'live')
+      
+      // 如果没有活跃的轨道，说明摄像头实际上已经停止了
+      if (!hasActiveTracks) {
+        this.isActive = false
+        this.stream = null
+        this.videoElement = null
+      }
+    }
+    
     return {
       isActive: this.isActive,
       stream: this.stream,

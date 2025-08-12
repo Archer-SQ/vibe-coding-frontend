@@ -53,53 +53,54 @@ export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [lastValidLandmarks, setLastValidLandmarks] = useState<number[][] | null>(null)
-  const [renderCount, setRenderCount] = useState(0)
-  const [lastRenderTime, setLastRenderTime] = useState<number>(0)
 
-  // 使用 useMemo 来稳定 landmarks 数据，并处理缓存逻辑
+  // 使用 useMemo 来稳定 landmarks 数据
   const stableLandmarks = useMemo(() => {
     const currentLandmarks = handPosition.landmarks || []
-    
-    // 如果当前有有效的landmarks数据，更新缓存
+
+    // 如果当前有有效的landmarks数据，直接返回
     if (currentLandmarks.length >= 21) {
-      setLastValidLandmarks(currentLandmarks)
       return currentLandmarks
     }
-    
+
     // 如果当前没有有效数据，使用缓存的数据
     if (lastValidLandmarks && lastValidLandmarks.length >= 21) {
       console.log('GestureVisualization - using cached landmarks')
       return lastValidLandmarks
     }
-    
+
     return currentLandmarks
   }, [handPosition.landmarks, lastValidLandmarks])
+
+  // 使用 useEffect 来更新缓存，避免在 useMemo 中更新状态
+  useEffect(() => {
+    const currentLandmarks = handPosition.landmarks || []
+    if (currentLandmarks.length >= 21) {
+      setLastValidLandmarks(currentLandmarks)
+    } else if (currentLandmarks.length === 0) {
+      // 如果当前没有任何关键点数据，清空缓存
+      setLastValidLandmarks(null)
+    }
+  }, [handPosition.landmarks])
 
   // 使用 useMemo 来稳定坐标数据
   const stablePosition = useMemo(() => {
     return {
       x: handPosition.x,
-      y: handPosition.y
+      y: handPosition.y,
     }
   }, [handPosition.x, handPosition.y])
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) {
-      console.log('GestureVisualization - canvas ref not available')
       return
     }
 
     const ctx = canvas.getContext('2d')
     if (!ctx) {
-      console.log('GestureVisualization - canvas context not available')
       return
     }
-
-    // 更新渲染状态
-    const currentTime = Date.now()
-    setRenderCount(prev => prev + 1)
-    setLastRenderTime(currentTime)
 
     // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -113,14 +114,8 @@ export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
     ctx.lineWidth = 2
     ctx.strokeRect(0, 0, canvas.width, canvas.height)
 
-    // 详细调试信息
+    // 检查是否使用缓存数据
     const isUsingCached = lastValidLandmarks && stableLandmarks === lastValidLandmarks
-    console.log(`GestureVisualization - render #${renderCount + 1}`)
-    console.log('GestureVisualization - landmarks count:', stableLandmarks?.length)
-    console.log('GestureVisualization - using cached data:', isUsingCached)
-    console.log('GestureVisualization - handPosition:', handPosition)
-    console.log('GestureVisualization - canvas size:', canvas.width, 'x', canvas.height)
-    console.log('GestureVisualization - time since last render:', currentTime - lastRenderTime, 'ms')
 
     // 如果没有手势数据，显示提示
     if (!stableLandmarks || stableLandmarks.length === 0) {
@@ -204,15 +199,7 @@ export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
     ctx.strokeStyle = '#00d4aa'
     ctx.lineWidth = 1
     ctx.stroke()
-
-    // 显示渲染状态信息
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto'
-    ctx.textAlign = 'left'
-    ctx.fillText(`渲染: ${renderCount + 1}`, 5, 15)
-    ctx.fillText(`状态: ${isUsingCached ? '缓存' : '实时'}`, 5, 30)
-    ctx.fillText(`关键点: ${stableLandmarks.length}`, 5, 45)
-  }, [stableLandmarks, stablePosition, width, height, renderCount, lastValidLandmarks]) // 使用稳定的依赖项
+  }, [stableLandmarks, stablePosition, width, height, lastValidLandmarks]) // 使用稳定的依赖项
 
   return (
     <canvas
