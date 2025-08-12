@@ -66,6 +66,13 @@ export default defineConfig({
   server: {
     host: true,
     port: 5174,
+    // 可选：启用HTTPS（用于测试其他设备访问）
+    // https: true, // 启用自签名证书
+    // 或者使用自定义证书
+    // https: {
+    //   key: fs.readFileSync('path/to/key.pem'),
+    //   cert: fs.readFileSync('path/to/cert.pem'),
+    // },
   },
   
   // 依赖预构建优化
@@ -78,8 +85,9 @@ export default defineConfig({
       '@ant-design/icons',
       'axios',
       'zustand',
+      '@mediapipe/hands', // 包含MediaPipe以确保正确加载
     ],
-    // 排除不需要预构建的依赖
-    exclude: ['@mediapipe/hands'],
+    // 强制预构建某些依赖
+    force: true,
   },
 })

@@ -76,7 +76,6 @@ service.interceptors.response.use(
     }
     
     message.error(errorMessage)
-    console.error('AxiosError:', error)
     return Promise.reject(error)
   },
 )

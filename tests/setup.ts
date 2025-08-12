@@ -1,6 +1,24 @@
 import '@testing-library/jest-dom'
 
-// TextEncoder/TextDecoder polyfill 在 Jest 配置中处理
+// 添加 TextEncoder 和 TextDecoder polyfill
+if (typeof globalThis.TextEncoder === 'undefined') {
+  // @ts-expect-error - 简单的 polyfill 实现
+  globalThis.TextEncoder = class {
+    encode(input = '') {
+      return new Uint8Array(Array.from(input).map(char => char.charCodeAt(0)))
+    }
+  }
+}
+
+if (typeof globalThis.TextDecoder === 'undefined') {
+  // @ts-expect-error - 简单的 polyfill 实现
+  globalThis.TextDecoder = class {
+    decode(input: any) {
+      if (!input) return ''
+      return String.fromCharCode(...new Uint8Array(input))
+    }
+  }
+}
 
 // Mock MediaPipe
 Object.defineProperty(globalThis, 'MediaStream', {

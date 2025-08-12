@@ -1,7 +1,78 @@
 import React from 'react'
 import { render, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
+import '@testing-library/jest-dom'
 import Game from '../../src/pages/Game'
+
+// Mock 路由
+const mockNavigate = jest.fn()
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}))
+
+// Mock 图片资源
+jest.mock('@/assets/image-removebg-preview.png', () => 'player-ship.png', { virtual: true })
+jest.mock('@/assets/bullet-rocket.png', () => 'bullet.png', { virtual: true })
+jest.mock('@/assets/enemy-ship.png', () => 'enemy-ship.png', { virtual: true })
+
+// Mock MediaPipe
+const mockHands = {
+  setOptions: jest.fn(),
+  onResults: jest.fn(),
+  send: jest.fn(),
+  close: jest.fn(),
+}
+
+Object.defineProperty(window, 'Hands', {
+  writable: true,
+  value: jest.fn(() => mockHands),
+})
+
+// Mock cameraManager
+jest.mock('../../src/utils/cameraManager', () => {
+  const mockCameraManager = {
+    startCamera: jest.fn().mockResolvedValue(new MediaStream()),
+    stopCamera: jest.fn(),
+    setVideoElement: jest.fn(),
+    addStatusListener: jest.fn(),
+    removeStatusListener: jest.fn(),
+    getStatus: jest.fn().mockReturnValue({ isActive: false, stream: null }),
+    forceStop: jest.fn(),
+  }
+  
+  return {
+    cameraManager: mockCameraManager,
+  }
+})
+
+// Mock timeUtils
+jest.mock('../../src/utils/timeUtils', () => ({
+  formatTime: jest.fn((time: number) => `${Math.floor(time / 1000)}s`),
+}))
+
+// Mock request
+jest.mock('../../src/services/request', () => ({
+  __esModule: true,
+  default: {
+    post: jest.fn().mockResolvedValue({ data: { success: true } }),
+  },
+}))
+
+// Mock window.requestAnimationFrame
+Object.defineProperty(window, 'requestAnimationFrame', {
+  writable: true,
+  value: jest.fn((cb: FrameRequestCallback) => {
+    return setTimeout(cb, 16)
+  }),
+})
+
+Object.defineProperty(window, 'cancelAnimationFrame', {
+  writable: true,
+  value: jest.fn((id: number) => {
+    clearTimeout(id)
+  }),
+})
 
 // 简单的测试包装器
 const SimpleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -13,31 +84,30 @@ const SimpleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 }
 
 describe('Game 组件简单渲染测试', () => {
-  it('应该能够渲染Game组件', async () => {
+  test('Game 组件基本渲染测试', async () => {
     const { container } = render(
-      <SimpleWrapper>
+      <BrowserRouter>
         <Game />
-      </SimpleWrapper>
+      </BrowserRouter>
     )
 
-    // 等待任何div元素出现，表明组件已渲染
+    // 等待组件渲染
     await waitFor(() => {
-      const divs = container.querySelectorAll('div')
-      expect(divs.length).toBeGreaterThan(0)
-    }, { timeout: 10000 })
-
-    console.log('Game组件渲染成功!')
-    console.log('DOM元素数量:', container.querySelectorAll('div').length)
-    
-    // 打印所有文本内容
-    const allText = container.textContent || ''
-    console.log('所有文本内容:', allText)
-    
-    // 查找特定的按钮和文本
-    const buttons = container.querySelectorAll('button')
-    console.log('按钮数量:', buttons.length)
-    buttons.forEach((btn, index) => {
-      console.log(`按钮${index + 1}:`, btn.textContent)
+      expect(container.firstChild).toBeInTheDocument()
     })
+
+    // 检查基本元素
+    const allText = container.textContent || ''
+
+    // 检查按钮
+    const buttons = container.querySelectorAll('button')
+
+    buttons.forEach((btn, index) => {
+      expect(btn).toBeInTheDocument()
+    })
+
+    // 基本断言
+    expect(container.firstChild).toBeInTheDocument()
+    expect(buttons.length).toBeGreaterThan(0)
   })
 })

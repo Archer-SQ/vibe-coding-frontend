@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useCallback, memo } from 'react'
-import { Button, Switch, Slider, Card } from 'antd'
-import { CameraOutlined, VideoCameraOutlined, SettingOutlined } from '@ant-design/icons'
+import React, { useRef, useEffect, useCallback, memo, useState } from 'react'
+import { Button, Switch, Slider, Card, Alert, Modal, Space } from 'antd'
+import { CameraOutlined, VideoCameraOutlined, SettingOutlined, ExclamationCircleOutlined, ReloadOutlined, BugOutlined } from '@ant-design/icons'
 import { useGameControl } from '../hooks/useGameControl'
 import { GestureType } from '../types/gesture'
+import { cameraManager } from '../utils/cameraManager'
 import './CameraPreview.less'
 
 interface CameraPreviewProps {
@@ -20,6 +21,20 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  
+  // 诊断相关状态
+  const [showDiagnostic, setShowDiagnostic] = useState(false)
+  const [diagnosticInfo, setDiagnosticInfo] = useState<{
+    permission: { state: string; message: string } | null
+    compatibility: { supported: boolean; message: string } | null
+    devices: MediaDeviceInfo[]
+    browserInfo: string
+  }>({
+    permission: null,
+    compatibility: null,
+    devices: [],
+    browserInfo: ''
+  })
 
   const {
     playerPosition,
@@ -63,7 +78,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
     try {
       await startGestureControl()
     } catch (error) {
-      console.error('启动摄像头失败:', error)
+      // 启动失败时的错误处理
     }
   }, [startGestureControl])
 
@@ -83,6 +98,49 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   const handleSensitivityChange = useCallback((value: number) => {
     updateSensitivity(value)
   }, [updateSensitivity])
+
+  // 运行摄像头诊断
+  const runDiagnostic = useCallback(async () => {
+    try {
+      // 检查权限
+      const permission = await cameraManager.checkPermission()
+      
+      // 检查兼容性
+      const compatibility = cameraManager.checkCompatibility()
+      
+      // 获取设备列表
+      let devices: MediaDeviceInfo[] = []
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+          const allDevices = await navigator.mediaDevices.enumerateDevices()
+          devices = allDevices.filter(device => device.kind === 'videoinput')
+        }
+      } catch (error) {
+        // 设备枚举失败
+      }
+      
+      // 获取浏览器信息
+      const browserInfo = `${navigator.userAgent}`
+      
+      setDiagnosticInfo({
+        permission,
+        compatibility,
+        devices,
+        browserInfo
+      })
+      
+      setShowDiagnostic(true)
+    } catch (error) {
+      // 诊断失败
+      setDiagnosticInfo({
+        permission: { state: 'error', message: '权限检查失败' },
+        compatibility: { supported: false, message: '兼容性检查失败' },
+        devices: [],
+        browserInfo: navigator.userAgent
+      })
+      setShowDiagnostic(true)
+    }
+  }, [])
 
   // 通知父组件手势变化
   useEffect(() => {
@@ -151,12 +209,44 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
             <div className="camera-placeholder">
               {cameraError ? (
                 <div className="camera-error">
-                  <span>❌ {cameraError}</span>
+                  <div className="error-icon">❌</div>
+                  <div className="error-message">{cameraError}</div>
+                  <div className="error-actions">
+                    <Space>
+                      <Button 
+                        type="primary" 
+                        size="small"
+                        icon={<ReloadOutlined />}
+                        onClick={handleStartCamera}
+                      >
+                        重试启动
+                      </Button>
+                      <Button 
+                        size="small"
+                        icon={<BugOutlined />}
+                        onClick={runDiagnostic}
+                      >
+                        诊断问题
+                      </Button>
+                    </Space>
+                  </div>
+                  <div className="error-tips">
+                    <p>💡 解决方案：</p>
+                    <ul>
+                      <li>点击浏览器地址栏的摄像头图标，允许访问摄像头</li>
+                      <li>确保没有其他应用正在使用摄像头</li>
+                      <li>尝试刷新页面重新授权</li>
+                      <li>检查摄像头设备是否正常连接</li>
+                    </ul>
+                  </div>
                 </div>
               ) : (
                 <div className="camera-inactive">
                   <CameraOutlined style={{ fontSize: '48px', color: '#ccc' }} />
                   <span>摄像头未启动</span>
+                  <p style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
+                    点击"启动摄像头"按钮开始手势控制
+                  </p>
                 </div>
               )}
             </div>
@@ -261,6 +351,106 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
           </div>
         </div>
       </Card>
+
+      {/* 诊断模态框 */}
+      <Modal
+        title={
+          <span>
+            <BugOutlined /> 摄像头诊断报告
+          </span>
+        }
+        open={showDiagnostic}
+        onCancel={() => setShowDiagnostic(false)}
+        footer={[
+          <Button key="close" onClick={() => setShowDiagnostic(false)}>
+            关闭
+          </Button>
+        ]}
+        width={600}
+      >
+        <div className="diagnostic-report">
+          {/* 权限状态 */}
+          <div className="diagnostic-section">
+            <h4>📋 权限状态</h4>
+            {diagnosticInfo.permission && (
+              <Alert
+                type={diagnosticInfo.permission.state === 'granted' ? 'success' : 'warning'}
+                message={diagnosticInfo.permission.message}
+                showIcon
+              />
+            )}
+          </div>
+
+          {/* 浏览器兼容性 */}
+          <div className="diagnostic-section">
+            <h4>🌐 浏览器兼容性</h4>
+            {diagnosticInfo.compatibility && (
+              <Alert
+                type={diagnosticInfo.compatibility.supported ? 'success' : 'error'}
+                message={diagnosticInfo.compatibility.message}
+                showIcon
+              />
+            )}
+          </div>
+
+          {/* 摄像头设备 */}
+          <div className="diagnostic-section">
+            <h4>📹 摄像头设备</h4>
+            {diagnosticInfo.devices.length > 0 ? (
+              <div>
+                <Alert type="success" message={`检测到 ${diagnosticInfo.devices.length} 个摄像头设备`} showIcon />
+                <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                  {diagnosticInfo.devices.map((device, index) => (
+                    <li key={device.deviceId}>
+                      {device.label || `摄像头 ${index + 1}`} ({device.deviceId.substring(0, 8)}...)
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <Alert type="warning" message="未检测到摄像头设备或权限不足" showIcon />
+            )}
+          </div>
+
+          {/* 环境信息 */}
+          <div className="diagnostic-section">
+            <h4>💻 环境信息</h4>
+            <div style={{ fontSize: '12px', color: '#666', wordBreak: 'break-all' }}>
+              <p><strong>协议:</strong> {location.protocol}</p>
+              <p><strong>域名:</strong> {location.hostname}</p>
+              <p><strong>端口:</strong> {location.port || '默认'}</p>
+              <p><strong>浏览器:</strong> {diagnosticInfo.browserInfo}</p>
+            </div>
+          </div>
+
+          {/* 解决建议 */}
+          <div className="diagnostic-section">
+            <h4>💡 解决建议</h4>
+            <div style={{ fontSize: '14px' }}>
+              <p><strong>如果权限被拒绝:</strong></p>
+              <ul>
+                <li>点击浏览器地址栏的摄像头图标重新授权</li>
+                <li>在浏览器设置中允许此网站访问摄像头</li>
+                <li>尝试刷新页面重新请求权限</li>
+              </ul>
+              
+              <p><strong>如果没有检测到设备:</strong></p>
+              <ul>
+                <li>确保摄像头设备已正确连接</li>
+                <li>检查其他应用是否正在使用摄像头</li>
+                <li>尝试重新插拔摄像头设备</li>
+              </ul>
+              
+              <p><strong>如果浏览器不兼容:</strong></p>
+              <ul>
+                <li>使用Chrome 53+、Firefox 36+或Safari 11+</li>
+                <li>确保浏览器已更新到最新版本</li>
+                <li>如果是HTTP环境，请使用HTTPS或localhost</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

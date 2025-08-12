@@ -7,6 +7,8 @@ import { cameraManager } from '../utils/cameraManager'
 const Start = lazy(() => import('../pages/Start'))
 const Rank = lazy(() => import('../pages/Rank'))
 const Game = lazy(() => import('../pages/Game'))
+const GestureDebug = lazy(() => import('../pages/GestureDebug'))
+const GestureTest = lazy(() => import('../pages/GestureTest'))
 
 // 加载中组件
 const PageLoading: React.FC = () => (
@@ -35,7 +37,6 @@ const RouterWithCameraControl: React.FC = () => {
   useEffect(() => {
     // 只要进入首页或排行榜页面就关闭摄像头
     if (location.pathname === '/' || location.pathname === '/rank') {
-      console.log('🔄 路由切换到:', location.pathname, '- 关闭摄像头')
       cameraManager.forceStop()
     }
   }, [location.pathname])
@@ -43,13 +44,11 @@ const RouterWithCameraControl: React.FC = () => {
   // 页面卸载时强制关闭摄像头
   useEffect(() => {
     const handleBeforeUnload = () => {
-      console.log('🚨 页面即将卸载，强制关闭摄像头')
       cameraManager.forceStop()
     }
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        console.log('🚨 页面隐藏，强制关闭摄像头')
         cameraManager.forceStop()
       }
     }
@@ -70,6 +69,8 @@ const RouterWithCameraControl: React.FC = () => {
         <Route path="/" element={<StartWithNav />} />
         <Route path="/rank" element={<Rank />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/debug" element={<GestureDebug />} />
+        <Route path="/test" element={<GestureTest />} />
       </Routes>
     </Suspense>
   )

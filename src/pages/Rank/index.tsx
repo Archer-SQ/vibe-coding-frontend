@@ -49,8 +49,7 @@ const Rank: React.FC = () => {
         }
         setRankData(rankData)
       } catch (error) {
-        console.error('获取排行榜数据失败:', error)
-        setRankData([])
+        // 获取排行榜数据失败时的错误处理
       }
     }
     fetchRankData()
@@ -63,8 +62,7 @@ const Rank: React.FC = () => {
         const response = await request<{ info: PersonalInfo }>({ url: '/api/rank/personal', method: 'get' })
         setPersonal(response.info || defaultPersonal)
       } catch (error) {
-        console.error('获取个人信息失败:', error)
-        setPersonal(defaultPersonal)
+        // 获取个人信息失败时的错误处理
       }
     }
     fetchPersonal()

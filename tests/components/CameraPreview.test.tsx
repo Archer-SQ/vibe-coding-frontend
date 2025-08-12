@@ -39,6 +39,36 @@ jest.mock('antd', () => ({
       {extra && <div data-testid="card-extra">{extra}</div>}
       {children}
     </div>
+  ),
+  Alert: ({ message, type, showIcon, ...props }: { message?: React.ReactNode; type?: string; showIcon?: boolean }) => (
+    <div data-testid="alert" data-type={type} {...props}>
+      {showIcon && <span data-testid="alert-icon">⚠️</span>}
+      {message}
+    </div>
+  ),
+  Modal: ({ children, title, open, onCancel, footer, ...props }: { 
+    children?: React.ReactNode; 
+    title?: React.ReactNode; 
+    open?: boolean; 
+    onCancel?: () => void;
+    footer?: React.ReactNode;
+  }) => (
+    open ? (
+      <div data-testid="modal" {...props}>
+        {title && <div data-testid="modal-title">{title}</div>}
+        <div data-testid="modal-content">{children}</div>
+        {footer && <div data-testid="modal-footer">{footer}</div>}
+        <button onClick={onCancel} data-testid="modal-close">关闭</button>
+      </div>
+    ) : null
+  ),
+  Space: ({ children, direction = 'horizontal', ...props }: { 
+    children?: React.ReactNode; 
+    direction?: 'horizontal' | 'vertical';
+  }) => (
+    <div data-testid="space" data-direction={direction} {...props}>
+      {children}
+    </div>
   )
 }))
 
@@ -46,7 +76,10 @@ jest.mock('antd', () => ({
 jest.mock('@ant-design/icons', () => ({
   CameraOutlined: () => <span data-testid="camera-icon">📷</span>,
   VideoCameraOutlined: () => <span data-testid="video-icon">📹</span>,
-  SettingOutlined: () => <span data-testid="setting-icon">⚙️</span>
+  SettingOutlined: () => <span data-testid="setting-icon">⚙️</span>,
+  ExclamationCircleOutlined: () => <span data-testid="exclamation-icon">❗</span>,
+  ReloadOutlined: () => <span data-testid="reload-icon">🔄</span>,
+  BugOutlined: () => <span data-testid="bug-icon">🐛</span>
 }))
 
 describe('CameraPreview', () => {
@@ -267,7 +300,9 @@ describe('CameraPreview', () => {
 
     render(<CameraPreview />)
     
-    expect(screen.getByText('❌ 摄像头访问被拒绝')).toBeInTheDocument()
+    expect(screen.getByText('摄像头访问被拒绝')).toBeInTheDocument()
+    expect(screen.getByText('重试启动')).toBeInTheDocument()
+    expect(screen.getByText('诊断问题')).toBeInTheDocument()
   })
 
   it('应该在摄像头激活时显示视频元素', () => {

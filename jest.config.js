@@ -1,7 +1,6 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  setupFiles: ['<rootDir>/tests/polyfills.js'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   verbose: true,
   moduleNameMapper: {

@@ -137,7 +137,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream
-      videoRef.current.play().catch(console.error)
+      videoRef.current.play().catch(() => {})
     }
   }, [stream, videoRef])
 
@@ -167,7 +167,6 @@ const Game: React.FC = () => {
 
     // 组件卸载时停止摄像头和清理资源
     return () => {
-      console.log('离开游戏界面，自动关闭摄像头权限')
       stopGestureControl()
       // 清理防抖定时器
       if (pauseDebounceRef.current) {
@@ -236,11 +235,9 @@ const Game: React.FC = () => {
         if (collisionEnemies.length > 0) {
           setGameState(prev => {
             const newLives = prev.lives - collisionEnemies.length
-            console.log(`玩家被撞击！剩余生命: ${newLives}，连击归零`)
             
             // 如果生命值归零，触发游戏结束
             if (newLives <= 0) {
-              console.log('生命值归零，游戏结束！')
               // 延迟一帧触发游戏结束，确保状态更新完成
               setTimeout(() => {
                 endGame()
@@ -300,7 +297,6 @@ const Game: React.FC = () => {
 
     const difficultyTimer = setInterval(() => {
       setDifficultyLevel(prev => prev + 1)
-      console.log(`难度提升！当前难度级别: ${difficultyLevel + 1}`)
     }, 20000) // 每20秒增加难度
 
     return () => clearInterval(difficultyTimer)
@@ -320,7 +316,6 @@ const Game: React.FC = () => {
 
     // 处理射击动作 - 握拳时连续发射
     if (gameActions.shoot && !isShootingRef.current) {
-      console.log('开始连续射击')
       isShootingRef.current = true
 
       // 立即发射第一颗子弹
@@ -331,7 +326,6 @@ const Game: React.FC = () => {
         createBullet(playerPosition.x, playerPosition.y - 5)
       }, 500)
     } else if (!gameActions.shoot && isShootingRef.current) {
-      console.log('停止连续射击')
       // 停止射击
       if (shootIntervalRef.current) {
         clearInterval(shootIntervalRef.current)
@@ -347,7 +341,6 @@ const Game: React.FC = () => {
 
       // 防抖：至少间隔1秒才能再次暂停
       if (timeSinceLastPause > 1000) {
-        console.log('手势暂停触发')
         lastPauseTimeRef.current = now
 
         // 清除之前的防抖定时器
@@ -374,7 +367,6 @@ const Game: React.FC = () => {
   const startGame = async () => {
     // 开始游戏时确保摄像头已启动
     if (!isCameraActive) {
-      console.log('开始游戏，启动摄像头')
       await startGestureControl()
     }
 
@@ -402,9 +394,6 @@ const Game: React.FC = () => {
     // 记录暂停开始时间
     pauseStartTimeRef.current = Date.now()
 
-    // 暂停时保持摄像头活跃，以便识别恢复手势
-    console.log('游戏暂停，保持摄像头活跃以识别手势')
-
     setGameState(prev => ({ ...prev, isPaused: true }))
     setShowPauseModal(true)
   }
@@ -417,16 +406,11 @@ const Game: React.FC = () => {
       pauseStartTimeRef.current = 0
     }
 
-    // 恢复时不需要重新启动摄像头，因为一直保持活跃
-    console.log('游戏恢复，摄像头保持活跃状态')
-
     setGameState(prev => ({ ...prev, isPaused: false }))
     setShowPauseModal(false)
   }
 
   const endGame = async () => {
-    console.log('游戏结束')
-
     // 设置游戏状态为结束
     setGameState(prev => ({
       ...prev,
@@ -457,21 +441,12 @@ const Game: React.FC = () => {
         playerName: '玩家' // 可以后续扩展为用户输入
       }
       
-      console.log('正在提交游戏成绩...', gameResult)
-      
       const result = await request<{ code: number; data: { success: boolean; rank?: number }; msg: string }>({
         url: '/api/rank/submit',
         method: 'post',
         data: gameResult
       })
-      
-      if (result.data.success) {
-        console.log('✅ 游戏成绩提交成功，排名:', result.data.rank)
-      } else {
-        console.error('❌ 游戏成绩提交失败:', result)
-      }
     } catch (error) {
-      console.error('❌ 提交游戏成绩时发生错误:', error)
       // 错误已经在request服务中通过message.error显示给用户了
     }
 
@@ -480,7 +455,6 @@ const Game: React.FC = () => {
     setShowGameOverModal(true)
 
     // 关闭摄像头
-    console.log('关闭摄像头')
     stopGestureControl()
   }
 
@@ -540,8 +514,6 @@ const Game: React.FC = () => {
   }
 
   const handleGameOverRestart = async () => {
-    console.log('游戏结束后重新开始')
-
     // 关闭游戏结束模态框
     setShowGameOverModal(false)
 
@@ -551,9 +523,8 @@ const Game: React.FC = () => {
     // 重新启动摄像头
     try {
       await startGestureControl()
-      console.log('摄像头重新启动成功')
     } catch (error) {
-      console.error('重新启动摄像头失败:', error)
+      // 错误处理已在startGestureControl中完成
     }
   }
 
@@ -568,8 +539,6 @@ const Game: React.FC = () => {
   }
 
   const restartGame = async () => {
-    console.log('重新开始游戏')
-
     // 关闭暂停模态框
     setShowPauseModal(false)
 
@@ -584,7 +553,6 @@ const Game: React.FC = () => {
 
     // 确保摄像头处于活跃状态
     if (!isCameraActive) {
-      console.log('摄像头未启动，重新启动')
       await startGestureControl()
     }
   }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import '@testing-library/jest-dom'
 import Game from '../../src/pages/Game'
@@ -40,7 +40,7 @@ jest.mock('../../src/utils/cameraManager', () => {
     getStatus: jest.fn().mockReturnValue({ isActive: false, stream: null }),
     forceStop: jest.fn(),
   }
-  
+
   return {
     cameraManager: mockCameraManager,
   }
@@ -85,11 +85,6 @@ Object.defineProperty(HTMLVideoElement.prototype, 'load', {
   value: jest.fn(),
 })
 
-// 测试组件包装器
-const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <BrowserRouter>{children}</BrowserRouter>
-)
-
 describe('Game 组件调试测试', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -97,40 +92,36 @@ describe('Game 组件调试测试', () => {
     jest.useRealTimers()
   })
 
-  it('应该能够渲染 Game 组件', async () => {
-    console.log('开始渲染 Game 组件...')
-    
-    try {
-      const { container } = render(
-        <TestWrapper>
-          <Game />
-        </TestWrapper>
-      )
-      
-      console.log('组件渲染完成')
-      console.log('DOM 内容:', container.innerHTML)
-      
-      // 检查是否有任何内容被渲染
-      const allElements = container.querySelectorAll('*')
-      console.log('渲染的元素数量:', allElements.length)
-      
-      // 尝试查找一些基本元素
-      const buttons = container.querySelectorAll('button')
-      console.log('按钮数量:', buttons.length)
-      
-      if (buttons.length > 0) {
-        buttons.forEach((button, index) => {
-          console.log(`按钮 ${index}:`, button.textContent)
-        })
-      }
-      
-      // 基本断言
-      expect(container).toBeInTheDocument()
-      expect(allElements.length).toBeGreaterThan(1)
-      
-    } catch (error) {
-      console.error('渲染过程中出现错误:', error)
-      throw error
-    }
+  test('Game 组件能够正常渲染', async () => {
+
+    const result = render(
+      <BrowserRouter>
+        <Game />
+      </BrowserRouter>,
+    )
+    const container = result.container
+
+    // 等待组件完全渲染
+    await waitFor(
+      () => {
+        expect(container.firstChild).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
+
+    // 检查是否有任何元素被渲染
+    const allElements = container.querySelectorAll('*')
+
+    // 检查按钮数量
+    const buttons = container.querySelectorAll('button')
+
+    buttons.forEach((button, index) => {
+      expect(button).toBeInTheDocument()
+    })
+
+    // 基本断言
+    expect(container.firstChild).toBeInTheDocument()
+    expect(allElements.length).toBeGreaterThan(0)
+    expect(buttons.length).toBeGreaterThan(0)
   })
 })

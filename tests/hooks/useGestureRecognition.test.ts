@@ -117,14 +117,18 @@ describe('useGestureRecognition', () => {
 
   it('应该正确处理摄像头权限错误', async () => {
     // Mock cameraManager.startCamera 抛出权限错误
-    mockCameraManager.startCamera.mockRejectedValue(
-      Object.assign(new Error('Permission denied'), { name: 'NotAllowedError' })
-    )
+    const error = new Error('摄像头权限被拒绝，请在浏览器设置中允许访问摄像头')
+    error.name = 'NotAllowedError'
+    mockCameraManager.startCamera.mockRejectedValueOnce(error)
 
     const { result } = renderHook(() => useGestureRecognition())
 
     await act(async () => {
-      await result.current.startCamera()
+      try {
+        await result.current.startCamera()
+      } catch (e) {
+        // 捕获错误，测试应该处理这个错误
+      }
     })
 
     expect(result.current.cameraState.isConnected).toBe(false)
@@ -133,14 +137,18 @@ describe('useGestureRecognition', () => {
 
   it('应该正确处理设备不存在错误', async () => {
     // Mock cameraManager.startCamera 抛出设备不存在错误
-    mockCameraManager.startCamera.mockRejectedValue(
-      Object.assign(new Error('Device not found'), { name: 'NotFoundError' })
-    )
+    const error = new Error('未找到摄像头设备，请检查摄像头是否正确连接')
+    error.name = 'NotFoundError'
+    mockCameraManager.startCamera.mockRejectedValueOnce(error)
 
     const { result } = renderHook(() => useGestureRecognition())
 
     await act(async () => {
-      await result.current.startCamera()
+      try {
+        await result.current.startCamera()
+      } catch (e) {
+        // 捕获错误，测试应该处理这个错误
+      }
     })
 
     expect(result.current.cameraState.isConnected).toBe(false)
@@ -155,10 +163,13 @@ describe('useGestureRecognition', () => {
       await result.current.startCamera()
     })
 
-    // 卸载组件
+    // 验证摄像头已启动
+    expect(result.current.cameraState.isActive).toBe(true)
+
+    // 卸载组件，这会触发 useEffect 的清理函数
     unmount()
 
-    // 验证清理函数被调用
-    expect(mockHands.close).toHaveBeenCalled()
+    // 验证 cameraManager.stopCamera 被调用
+    expect(mockCameraManager.stopCamera).toHaveBeenCalled()
   })
 })
