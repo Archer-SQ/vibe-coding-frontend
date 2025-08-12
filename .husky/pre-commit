@@ -1,3 +1,3 @@
-# 暂时跳过测试检查，待测试稳定后重新启用
-# npm run test:ci
-echo "Pre-commit hook: 跳过测试检查"
+# 运行测试检查，确保代码质量
+pnpm test:ci
+echo "Pre-commit hook: 测试检查完成"
