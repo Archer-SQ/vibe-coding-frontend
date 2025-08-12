@@ -195,6 +195,8 @@ const Game: React.FC = () => {
   const pausedTimeRef = useRef<number>(0)
   // 暂停开始时间
   const pauseStartTimeRef = useRef<number>(0)
+  // 游戏结束标志，防止重复调用endGame
+  const gameEndedRef = useRef<boolean>(false)
 
   // 游戏循环
   useEffect(() => {
@@ -236,8 +238,9 @@ const Game: React.FC = () => {
           setGameState(prev => {
             const newLives = prev.lives - collisionEnemies.length
             
-            // 如果生命值归零，触发游戏结束
-            if (newLives <= 0) {
+            // 如果生命值归零且游戏尚未结束，触发游戏结束
+            if (newLives <= 0 && !gameEndedRef.current) {
+              gameEndedRef.current = true // 设置游戏结束标志
               // 延迟一帧触发游戏结束，确保状态更新完成
               setTimeout(() => {
                 endGame()
@@ -433,19 +436,32 @@ const Game: React.FC = () => {
 
     // 提交游戏成绩
     try {
+      const { getOrCreateDeviceId } = await import('../../utils/deviceUtils')
+      const deviceId = getOrCreateDeviceId()
+      
       const gameResult = {
-        score: gameState.score,
-        level: difficultyLevel,
-        duration: gameState.time,
-        timestamp: Date.now(),
-        playerName: '玩家' // 可以后续扩展为用户输入
+        deviceId,
+        score: gameState.score
       }
       
-      const result = await request<{ code: number; data: { success: boolean; rank?: number }; msg: string }>({
-        url: '/api/rank/submit',
+      const result = await request<{
+        success: boolean
+        data: {
+          recordId: string
+          isNewBest: boolean
+          currentBest: number
+          message: string
+        }
+        timestamp: number
+      }>({
+        url: '/api/game/submit',
         method: 'post',
         data: gameResult
       })
+      
+      if (result.success && result.data.isNewBest) {
+        console.log('新纪录！', result.data.message)
+      }
     } catch (error) {
       // 错误已经在request服务中通过message.error显示给用户了
     }
@@ -481,6 +497,8 @@ const Game: React.FC = () => {
     // 重置暂停时间
     pausedTimeRef.current = 0
     pauseStartTimeRef.current = 0
+    // 重置游戏结束标志
+    gameEndedRef.current = false
 
     // 清空子弹
     clearBullets()

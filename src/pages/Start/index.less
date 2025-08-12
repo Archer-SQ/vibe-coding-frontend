@@ -1,5 +1,6 @@
 @primary-gradient: linear-gradient(90deg, #3b82f6 0%, #a855f7 100%);
 @rank-gradient: linear-gradient(90deg, #34d399 0%, #60a5fa 100%);
+@test-gradient: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
 
 .start-bg {
   min-height: 100vh;
@@ -10,10 +11,7 @@
   align-items: center;
   justify-content: center;
   position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   overflow: hidden;
   z-index: 0;
 }
@@ -23,10 +21,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 32px 32px 32px;
+  padding: 48px 32px 32px;
   border-radius: 24px;
-  background: rgba(20, 30, 60, 0.7);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  background: rgb(20 30 60 / 70%);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 25%);
 }
 
 .start-title {
@@ -89,6 +87,14 @@
   background: linear-gradient(90deg, #059669 0%, #2563eb 100%);
 }
 
+.start-btn-test {
+  background: @test-gradient;
+}
+
+.start-btn-test:hover {
+  background: linear-gradient(90deg, #d97706 0%, #dc2626 100%);
+}
+
 .start-tip {
   margin-top: 12px;
   font-size: 16px;
@@ -104,31 +110,37 @@
   margin: 0 auto;
 }
 
-@media (max-width: 1440px) {
+@media (width <= 1440px) {
   .start-title {
     font-size: 40px;
   }
+
   .start-content {
-    padding: 36px 24px 24px 24px;
+    padding: 36px 24px 24px;
   }
+
   .start-btns {
     width: 220px;
   }
 }
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .start-title {
     font-size: 32px;
   }
+
   .start-content {
-    padding: 24px 12px 12px 12px;
+    padding: 24px 12px 12px;
   }
+
   .start-btns {
     width: 160px;
   }
+
   .start-desc {
     font-size: 16px;
   }
+
   .start-btn {
     font-size: 16px;
     height: 44px;

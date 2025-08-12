@@ -66,6 +66,16 @@ export default defineConfig({
   server: {
     host: true,
     port: 5174,
+    // 代理配置，解决CORS问题
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        // 重写路径，去掉前缀的 /api，避免重复
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    },
     // 可选：启用HTTPS（用于测试其他设备访问）
     // https: true, // 启用自签名证书
     // 或者使用自定义证书

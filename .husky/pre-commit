@@ -1,3 +1,28 @@
+# 运行 ESLint 检查
+echo "Pre-commit hook: 开始 ESLint 检查..."
+pnpm lint
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint 检查失败，请修复代码规范问题后再提交"
+  exit 1
+fi
+echo "✅ ESLint 检查通过"
+
+# 运行 Stylelint 检查
+echo "Pre-commit hook: 开始 Stylelint 检查..."
+pnpm lint:style
+if [ $? -ne 0 ]; then
+  echo "❌ Stylelint 检查失败，请修复样式规范问题后再提交"
+  exit 1
+fi
+echo "✅ Stylelint 检查通过"
+
 # 运行测试检查，确保代码质量
+echo "Pre-commit hook: 开始测试检查..."
 pnpm test:ci
-echo "Pre-commit hook: 测试检查完成"
+if [ $? -ne 0 ]; then
+  echo "❌ 测试检查失败，请修复测试问题后再提交"
+  exit 1
+fi
+echo "✅ 测试检查通过"
+
+echo "🎉 Pre-commit hook: 所有检查完成，代码质量良好！"

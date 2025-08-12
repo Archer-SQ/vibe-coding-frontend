@@ -3,17 +3,17 @@
   height: 100vh;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: white;
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   overflow: hidden;
 }
 
 .game-header {
   height: 60px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgb(0 0 0 / 30%);
   display: flex;
   align-items: center;
   padding: 0 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
 }
 
 .game-info {
@@ -39,25 +39,25 @@
 
     &.lives {
       color: #f44336;
-      background: rgba(244, 67, 54, 0.1);
+      background: rgb(244 67 54 / 10%);
       padding: 4px 8px;
       border-radius: 4px;
-      border: 1px solid rgba(244, 67, 54, 0.3);
+      border: 1px solid rgb(244 67 54 / 30%);
       transition: all 0.3s ease;
       
       &.low-health {
         animation: livesWarning 1s ease-in-out infinite;
-        background: rgba(244, 67, 54, 0.2);
-        border-color: rgba(244, 67, 54, 0.6);
+        background: rgb(244 67 54 / 20%);
+        border-color: rgb(244 67 54 / 60%);
       }
     }
 
     &.difficulty {
       color: #ff5722;
-      background: rgba(255, 87, 34, 0.1);
+      background: rgb(255 87 34 / 10%);
       padding: 4px 8px;
       border-radius: 4px;
-      border: 1px solid rgba(255, 87, 34, 0.3);
+      border: 1px solid rgb(255 87 34 / 30%);
       animation: difficultyPulse 3s ease-in-out infinite;
     }
   }
@@ -65,8 +65,8 @@
 
 // 暂停手势提示样式
 .pause-gesture-hint {
-  background: rgba(255, 193, 7, 0.15);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  background: rgb(255 193 7 / 15%);
+  border: 1px solid rgb(255 193 7 / 30%);
   border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
@@ -94,23 +94,23 @@
 /* 左侧面板 */
 .left-panel {
   width: 240px;
-  background: rgba(15, 25, 45, 0.95);
+  background: rgb(15 25 45 / 95%);
   padding: 16px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgb(255 255 255 / 8%);
   overflow-y: auto;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(15, 52, 96, 0.3) inset;
+    0 8px 32px rgb(0 0 0 / 40%),
+    0 0 0 1px rgb(15 52 96 / 30%) inset;
   transition: all 0.3s ease;
 
   &:hover {
     box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(15, 52, 96, 0.4) inset;
+      0 12px 40px rgb(0 0 0 / 50%),
+      0 0 0 1px rgb(15 52 96 / 40%) inset;
   }
 
   h3 {
-    color: #ffffff;
+    color: #fff;
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 12px;
@@ -123,21 +123,21 @@
   margin-bottom: 20px;
 
   .camera-preview {
-    background: rgba(30, 40, 60, 0.8);
+    background: rgb(30 40 60 / 80%);
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255 255 255 / 10%);
     box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(30, 40, 60, 0.3) inset;
+      0 4px 16px rgb(0 0 0 / 30%),
+      0 0 0 1px rgb(30 40 60 / 30%) inset;
     transition: all 0.3s ease;
 
     &:hover {
       transform: translateY(-2px);
       box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(30, 40, 60, 0.4) inset;
+        0 8px 24px rgb(0 0 0 / 40%),
+        0 0 0 1px rgb(30 40 60 / 40%) inset;
     }
 
     .camera-video {
@@ -156,16 +156,16 @@
       width: 100%;
       height: 120px;
       border-radius: 6px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgb(0 0 0 / 30%);
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border: 2px dashed rgb(255 255 255 / 20%);
       margin-bottom: 12px;
 
       .camera-status {
         text-align: center;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgb(255 255 255 / 70%);
 
         .status-icon {
           font-size: 24px;
@@ -175,15 +175,16 @@
 
         .status-text {
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.6);
+          color: rgb(255 255 255 / 60%);
         }
 
         &.error {
           .status-icon {
             opacity: 0.8;
           }
+
           .status-text {
-            color: rgba(244, 67, 54, 0.8);
+            color: rgb(244 67 54 / 80%);
           }
         }
 
@@ -191,14 +192,15 @@
           .loading-spinner {
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgb(255 255 255 / 30%);
             border-top: 2px solid #4caf50;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 8px;
           }
+
           .status-text {
-            color: rgba(76, 175, 80, 0.8);
+            color: rgb(76 175 80 / 80%);
           }
         }
       }
@@ -210,7 +212,7 @@
       justify-content: flex-end;
       gap: 6px;
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgb(255 255 255 / 80%);
       margin-bottom: 8px;
 
       .status-dot {
@@ -221,7 +223,7 @@
         &.active {
           background: #4caf50;
           animation: pulse 2s infinite;
-          box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+          box-shadow: 0 0 8px rgb(76 175 80 / 60%);
         }
 
         &.inactive {
@@ -241,34 +243,34 @@
       transition: all 0.3s ease;
 
       &.start {
-        background: rgba(76, 175, 80, 0.8);
+        background: rgb(76 175 80 / 80%);
         color: white;
         box-shadow:
-          0 4px 16px rgba(76, 175, 80, 0.3),
-          0 0 0 1px rgba(76, 175, 80, 0.2) inset;
+          0 4px 16px rgb(76 175 80 / 30%),
+          0 0 0 1px rgb(76 175 80 / 20%) inset;
 
         &:hover:not(:disabled) {
-          background: rgba(76, 175, 80, 1);
+          background: rgb(76 175 80 / 100%);
           transform: translateY(-2px);
           box-shadow:
-            0 8px 24px rgba(76, 175, 80, 0.4),
-            0 0 0 1px rgba(76, 175, 80, 0.3) inset;
+            0 8px 24px rgb(76 175 80 / 40%),
+            0 0 0 1px rgb(76 175 80 / 30%) inset;
         }
       }
 
       &.stop {
-        background: rgba(244, 67, 54, 0.8);
+        background: rgb(244 67 54 / 80%);
         color: white;
         box-shadow:
-          0 4px 16px rgba(244, 67, 54, 0.3),
-          0 0 0 1px rgba(244, 67, 54, 0.2) inset;
+          0 4px 16px rgb(244 67 54 / 30%),
+          0 0 0 1px rgb(244 67 54 / 20%) inset;
 
         &:hover:not(:disabled) {
-          background: rgba(244, 67, 54, 1);
+          background: rgb(244 67 54 / 100%);
           transform: translateY(-2px);
           box-shadow:
-            0 8px 24px rgba(244, 67, 54, 0.4),
-            0 0 0 1px rgba(244, 67, 54, 0.3) inset;
+            0 8px 24px rgb(244 67 54 / 40%),
+            0 0 0 1px rgb(244 67 54 / 30%) inset;
         }
       }
 
@@ -284,6 +286,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -292,13 +295,13 @@
 /* Tooltip 样式 */
 :global(.camera-control-tooltip) {
   .ant-tooltip-inner {
-    background: rgba(0, 0, 0, 0.95);
-    color: rgba(255, 255, 255, 0.95);
+    background: rgb(0 0 0 / 95%);
+    color: rgb(255 255 255 / 95%);
     border-radius: 8px;
     padding: 12px 16px;
     font-size: 13px;
     line-height: 1.5;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 40%);
     max-width: 280px;
 
     .camera-tooltip {
@@ -311,8 +314,8 @@
 
       .tooltip-content {
         p {
-          margin: 0 0 6px 0;
-          color: rgba(255, 255, 255, 0.85);
+          margin: 0 0 6px;
+          color: rgb(255 255 255 / 85%);
 
           strong {
             color: #fff;
@@ -323,11 +326,11 @@
         .permission-steps {
           margin-top: 8px;
           padding-top: 8px;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          border-top: 1px solid rgb(255 255 255 / 10%);
 
           p {
             margin-bottom: 6px;
-            color: rgba(255, 193, 7, 0.9);
+            color: rgb(255 193 7 / 90%);
             font-weight: 500;
           }
 
@@ -337,7 +340,7 @@
 
             li {
               margin-bottom: 4px;
-              color: rgba(255, 255, 255, 0.8);
+              color: rgb(255 255 255 / 80%);
               font-size: 12px;
               line-height: 1.4;
             }
@@ -349,7 +352,7 @@
 
   .ant-tooltip-arrow {
     &::before {
-      background: rgba(0, 0, 0, 0.95);
+      background: rgb(0 0 0 / 95%);
     }
   }
 }
@@ -360,8 +363,8 @@
   .gesture-status {
     .gesture-item {
       padding: 12px 16px;
-      background: rgba(76, 175, 80, 0.15);
-      border: 1px solid rgba(76, 175, 80, 0.3);
+      background: rgb(76 175 80 / 15%);
+      border: 1px solid rgb(76 175 80 / 30%);
       border-radius: 6px;
       font-size: 13px;
 
@@ -372,13 +375,13 @@
       }
 
       .gesture-confidence {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgb(255 255 255 / 70%);
         font-size: 11px;
         margin-bottom: 4px;
       }
 
       .gesture-position {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgb(255 255 255 / 60%);
         font-size: 11px;
       }
     }
@@ -393,16 +396,16 @@
   border-radius: 12px;
   padding: 16px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(15, 52, 96, 0.3) inset;
+    0 8px 32px rgb(0 0 0 / 40%),
+    0 0 0 1px rgb(15 52 96 / 30%) inset;
   animation: slideUp 0.6s ease-out;
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(15, 52, 96, 0.4) inset;
+      0 12px 40px rgb(0 0 0 / 50%),
+      0 0 0 1px rgb(15 52 96 / 40%) inset;
   }
 
   .panel-header {
@@ -413,8 +416,8 @@
     .panel-title {
       font-size: 16px;
       font-weight: 600;
-      color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      color: #fff;
+      text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
     }
   }
 
@@ -425,9 +428,9 @@
       justify-content: center;
       align-items: center;
       padding: 8px;
-      background: rgba(0, 0, 0, 0.2);
+      background: rgb(0 0 0 / 20%);
       border-radius: 8px;
-      border: 1px solid rgba(15, 52, 96, 0.3);
+      border: 1px solid rgb(15 52 96 / 30%);
 
       canvas {
         border-radius: 8px;
@@ -442,7 +445,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
-        border-bottom: 1px solid rgba(15, 52, 96, 0.3);
+        border-bottom: 1px solid rgb(15 52 96 / 30%);
 
         &:last-child {
           border-bottom: none;
@@ -456,7 +459,7 @@
 
         .status-value {
           font-size: 14px;
-          color: #ffffff;
+          color: #fff;
           font-weight: 600;
 
           &.active {
@@ -469,7 +472,7 @@
 
           &.confidence {
             color: #00d4aa;
-            font-family: 'Monaco', 'Menlo', monospace;
+            font-family: Monaco, Menlo, monospace;
           }
 
           &.gesture-type {
@@ -492,6 +495,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -504,6 +508,7 @@
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: scale(1.05);
@@ -515,31 +520,34 @@
   100% {
     opacity: 0.8;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    box-shadow: 0 0 0 0 rgb(255 193 7 / 40%);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.02);
-    box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+    box-shadow: 0 0 0 8px rgb(255 193 7 / 0%);
   }
 }
 
 @keyframes difficultyPulse {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(255, 87, 34, 0.3);
+    box-shadow: 0 0 5px rgb(255 87 34 / 30%);
   }
+
   50% {
-    box-shadow: 0 0 15px rgba(255, 87, 34, 0.6);
+    box-shadow: 0 0 15px rgb(255 87 34 / 60%);
   }
 }
 
 @keyframes livesWarning {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(244, 67, 54, 0.4);
+    box-shadow: 0 0 5px rgb(244 67 54 / 40%);
     transform: scale(1);
   }
+
   50% {
-    box-shadow: 0 0 20px rgba(244, 67, 54, 0.8);
+    box-shadow: 0 0 20px rgb(244 67 54 / 80%);
     transform: scale(1.05);
   }
 }
@@ -549,6 +557,7 @@
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-4px);
   }
@@ -558,6 +567,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -567,26 +577,27 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
 }
 
 .control-section {
-  background: rgba(30, 40, 60, 0.6);
+  background: rgb(30 40 60 / 60%);
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(255 255 255 / 10%);
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(30, 40, 60, 0.3) inset;
+    0 4px 16px rgb(0 0 0 / 30%),
+    0 0 0 1px rgb(30 40 60 / 30%) inset;
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(30, 40, 60, 0.4) inset;
+      0 8px 24px rgb(0 0 0 / 40%),
+      0 0 0 1px rgb(30 40 60 / 40%) inset;
   }
 
   .control-list {
@@ -596,7 +607,7 @@
       gap: 10px;
       padding: 6px 0;
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgb(255 255 255 / 70%);
 
       .control-dot {
         width: 8px;
@@ -606,19 +617,22 @@
 
         &.blue {
           background: #2196f3;
-          box-shadow: 0 0 6px rgba(33, 150, 243, 0.4);
+          box-shadow: 0 0 6px rgb(33 150 243 / 40%);
         }
+
         &.green {
           background: #4caf50;
-          box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+          box-shadow: 0 0 6px rgb(76 175 80 / 40%);
         }
+
         &.yellow {
           background: #ffc107;
-          box-shadow: 0 0 6px rgba(255, 193, 7, 0.4);
+          box-shadow: 0 0 6px rgb(255 193 7 / 40%);
         }
+
         &.red {
           background: #f44336;
-          box-shadow: 0 0 6px rgba(244, 67, 54, 0.4);
+          box-shadow: 0 0 6px rgb(244 67 54 / 40%);
         }
       }
 
@@ -646,15 +660,12 @@
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background:
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-      radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-      radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-      radial-gradient(circle at 30% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      radial-gradient(circle at 20% 30%, rgb(255 255 255 / 10%) 1px, transparent 1px),
+      radial-gradient(circle at 60% 70%, rgb(255 255 255 / 10%) 1px, transparent 1px),
+      radial-gradient(circle at 80% 20%, rgb(255 255 255 / 10%) 1px, transparent 1px),
+      radial-gradient(circle at 30% 80%, rgb(255 255 255 / 10%) 1px, transparent 1px);
     animation: starfield 20s linear infinite;
   }
 }
@@ -663,7 +674,7 @@
   position: absolute;
   transform: translate(-50%, -50%);
   z-index: 10;
-  filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.8));
+  filter: drop-shadow(0 0 10px rgb(0 255 255 / 80%));
   animation: playerGlow 2s ease-in-out infinite alternate;
 
   .player-ship-image {
@@ -693,7 +704,7 @@
     width: 40px;
     height: 40px;
     object-fit: contain;
-    filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.6));
+    filter: drop-shadow(0 0 8px rgb(255 0 0 / 60%));
   }
 
   .enemy-health-bar {
@@ -703,15 +714,15 @@
     transform: translateX(-50%);
     width: 30px;
     height: 4px;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgb(255 255 255 / 30%);
     border-radius: 2px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgb(255 255 255 / 50%);
     z-index: 10;
   }
 
   .enemy-health-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ff4444 0%, #ffaa00 50%, #44ff44 100%);
+    background: linear-gradient(90deg, #f44 0%, #fa0 50%, #4f4 100%);
     border-radius: 1px;
     transition: width 0.2s ease;
   }
@@ -722,25 +733,22 @@
   font-size: 16px;
   transform: translate(-50%, -50%);
   z-index: 8;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 0, 0.8));
+  filter: drop-shadow(0 0 6px rgb(255 255 0 / 80%));
   animation: bulletGlow 0.5s ease-in-out infinite alternate;
 
   .bullet-image {
     width: 20px;
     height: 20px;
     object-fit: contain;
-    filter: drop-shadow(0 0 8px rgba(0, 150, 255, 0.8));
+    filter: drop-shadow(0 0 8px rgb(0 150 255 / 80%));
     transform: rotate(-45deg); /* 逆时针旋转45度 */
   }
 }
 
 .pause-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgb(0 0 0 / 70%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -779,24 +787,24 @@
 /* 右侧面板 */
 .right-panel {
   width: 240px;
-  background: rgba(15, 25, 45, 0.95);
+  background: rgb(15 25 45 / 95%);
   padding: 16px;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgb(255 255 255 / 8%);
   display: flex;
   flex-direction: column;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(15, 52, 96, 0.3) inset;
+    0 8px 32px rgb(0 0 0 / 40%),
+    0 0 0 1px rgb(15 52 96 / 30%) inset;
   transition: all 0.3s ease;
 
   &:hover {
     box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(15, 52, 96, 0.4) inset;
+      0 12px 40px rgb(0 0 0 / 50%),
+      0 0 0 1px rgb(15 52 96 / 40%) inset;
   }
 
   h3 {
-    color: #ffffff;
+    color: #fff;
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 12px;
@@ -811,21 +819,21 @@
   .radar-display {
     width: 100%;
     height: 120px;
-    background: rgba(30, 40, 60, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgb(30 40 60 / 80%);
+    border: 1px solid rgb(255 255 255 / 10%);
     border-radius: 8px;
     position: relative;
     overflow: hidden;
     box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(30, 40, 60, 0.3) inset;
+      0 4px 16px rgb(0 0 0 / 30%),
+      0 0 0 1px rgb(30 40 60 / 30%) inset;
     transition: all 0.3s ease;
 
     &:hover {
       transform: translateY(-2px);
       box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(30, 40, 60, 0.4) inset;
+        0 8px 24px rgb(0 0 0 / 40%),
+        0 0 0 1px rgb(30 40 60 / 40%) inset;
     }
 
     &::before {
@@ -835,7 +843,7 @@
       left: 0;
       right: 0;
       height: 1px;
-      background: rgba(0, 255, 255, 0.15);
+      background: rgb(0 255 255 / 15%);
     }
 
     &::after {
@@ -845,7 +853,7 @@
       top: 0;
       bottom: 0;
       width: 1px;
-      background: rgba(0, 255, 255, 0.15);
+      background: rgb(0 255 255 / 15%);
     }
 
     .radar-grid {
@@ -863,27 +871,27 @@
 
         &.red {
           background: #ff5722;
-          box-shadow: 0 0 8px rgba(255, 87, 34, 0.6);
+          box-shadow: 0 0 8px rgb(255 87 34 / 60%);
         }
 
         &.yellow {
           background: #ffc107;
-          box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+          box-shadow: 0 0 8px rgb(255 193 7 / 60%);
         }
 
         &.green {
           background: #4caf50;
-          box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+          box-shadow: 0 0 8px rgb(76 175 80 / 60%);
         }
 
         // 玩家位置样式
         &.player {
           width: 8px;
           height: 8px;
-          background: #00ff00;
+          background: #0f0;
           box-shadow: 
-            0 0 12px rgba(0, 255, 0, 0.8),
-            0 0 20px rgba(0, 255, 0, 0.4);
+            0 0 12px rgb(0 255 0 / 80%),
+            0 0 20px rgb(0 255 0 / 40%);
           animation: playerRadarPulse 1.5s infinite;
           z-index: 10;
         }
@@ -915,7 +923,7 @@
         background: linear-gradient(
           to bottom,
           transparent 0%,
-          rgba(0, 255, 255, 0.8) 50%,
+          rgb(0 255 255 / 80%) 50%,
           transparent 100%
         );
         transform-origin: bottom center;
@@ -931,10 +939,10 @@
   margin-bottom: 20px;
 
   .progress-container {
-    background: rgba(30, 40, 60, 0.8);
+    background: rgb(30 40 60 / 80%);
     border-radius: 8px;
     padding: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255 255 255 / 10%);
   }
 
   .progress-info {
@@ -942,10 +950,10 @@
     justify-content: space-between;
     margin-bottom: 8px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgb(255 255 255 / 80%);
 
     .progress-label {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgb(255 255 255 / 60%);
     }
 
     .progress-value {
@@ -960,7 +968,7 @@
     }
 
     .ant-progress-inner {
-      background: rgba(255, 255, 255, 0.1) !important;
+      background: rgb(255 255 255 / 10%) !important;
     }
   }
 }
@@ -970,20 +978,20 @@
   text-align: center;
 
   .combo-container {
-    background: rgba(30, 40, 60, 0.8);
+    background: rgb(30 40 60 / 80%);
     border-radius: 8px;
     padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255 255 255 / 10%);
     box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(30, 40, 60, 0.3) inset;
+      0 4px 16px rgb(0 0 0 / 30%),
+      0 0 0 1px rgb(30 40 60 / 30%) inset;
     transition: all 0.3s ease;
 
     &:hover {
       transform: translateY(-2px);
       box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(30, 40, 60, 0.4) inset;
+        0 8px 24px rgb(0 0 0 / 40%),
+        0 0 0 1px rgb(30 40 60 / 40%) inset;
     }
   }
 
@@ -991,14 +999,14 @@
     font-size: 48px;
     font-weight: bold;
     color: #ff9800;
-    text-shadow: 0 0 15px rgba(255, 152, 0, 0.6);
+    text-shadow: 0 0 15px rgb(255 152 0 / 60%);
     margin-bottom: 8px;
     line-height: 1;
   }
 
   .combo-label {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgb(255 255 255 / 60%);
     font-weight: 400;
   }
 }
@@ -1011,9 +1019,9 @@
   .action-btn {
     flex: 1;
     height: 44px;
-    background: rgba(30, 40, 60, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.8);
+    background: rgb(30 40 60 / 80%);
+    border: 1px solid rgb(255 255 255 / 15%);
+    color: rgb(255 255 255 / 80%);
     border-radius: 8px;
     font-size: 12px;
     display: flex;
@@ -1022,17 +1030,17 @@
     gap: 6px;
     transition: all 0.3s ease;
     box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(30, 40, 60, 0.3) inset;
+      0 4px 16px rgb(0 0 0 / 30%),
+      0 0 0 1px rgb(30 40 60 / 30%) inset;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.25);
+      background: rgb(255 255 255 / 10%);
+      border-color: rgb(255 255 255 / 25%);
       color: white;
       transform: translateY(-3px);
       box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(30, 40, 60, 0.4) inset;
+        0 8px 24px rgb(0 0 0 / 40%),
+        0 0 0 1px rgb(30 40 60 / 40%) inset;
     }
 
     &.ranking-btn {
@@ -1067,15 +1075,15 @@
     gap: 8px;
     transition: all 0.3s ease;
     box-shadow:
-      0 6px 20px rgba(76, 175, 80, 0.3),
-      0 0 0 1px rgba(76, 175, 80, 0.2) inset;
+      0 6px 20px rgb(76 175 80 / 30%),
+      0 0 0 1px rgb(76 175 80 / 20%) inset;
 
     &:hover {
       background: linear-gradient(45deg, #45a049, #4caf50);
       transform: translateY(-4px);
       box-shadow:
-        0 12px 32px rgba(76, 175, 80, 0.4),
-        0 0 0 1px rgba(76, 175, 80, 0.3) inset;
+        0 12px 32px rgb(76 175 80 / 40%),
+        0 0 0 1px rgb(76 175 80 / 30%) inset;
     }
 
     .anticon {
@@ -1114,42 +1122,42 @@
       &.pause-btn {
         background: linear-gradient(45deg, #ff9800, #f57c00);
         box-shadow:
-          0 6px 20px rgba(255, 152, 0, 0.3),
-          0 0 0 1px rgba(255, 152, 0, 0.2) inset;
+          0 6px 20px rgb(255 152 0 / 30%),
+          0 0 0 1px rgb(255 152 0 / 20%) inset;
 
         &:hover {
           background: linear-gradient(45deg, #f57c00, #ff9800);
           box-shadow:
-            0 12px 32px rgba(255, 152, 0, 0.4),
-            0 0 0 1px rgba(255, 152, 0, 0.3) inset;
+            0 12px 32px rgb(255 152 0 / 40%),
+            0 0 0 1px rgb(255 152 0 / 30%) inset;
         }
       }
 
       &.end-btn {
         background: linear-gradient(45deg, #f44336, #d32f2f);
         box-shadow:
-          0 6px 20px rgba(244, 67, 54, 0.3),
-          0 0 0 1px rgba(244, 67, 54, 0.2) inset;
+          0 6px 20px rgb(244 67 54 / 30%),
+          0 0 0 1px rgb(244 67 54 / 20%) inset;
 
         &:hover {
           background: linear-gradient(45deg, #d32f2f, #f44336);
           box-shadow:
-            0 12px 32px rgba(244, 67, 54, 0.4),
-            0 0 0 1px rgba(244, 67, 54, 0.3) inset;
+            0 12px 32px rgb(244 67 54 / 40%),
+            0 0 0 1px rgb(244 67 54 / 30%) inset;
         }
       }
 
       &.restart-btn {
         background: linear-gradient(45deg, #2196f3, #1976d2);
         box-shadow:
-          0 6px 20px rgba(33, 150, 243, 0.3),
-          0 0 0 1px rgba(33, 150, 243, 0.2) inset;
+          0 6px 20px rgb(33 150 243 / 30%),
+          0 0 0 1px rgb(33 150 243 / 20%) inset;
 
         &:hover {
           background: linear-gradient(45deg, #1976d2, #2196f3);
           box-shadow:
-            0 12px 32px rgba(33, 150, 243, 0.4),
-            0 0 0 1px rgba(33, 150, 243, 0.3) inset;
+            0 12px 32px rgb(33 150 243 / 40%),
+            0 0 0 1px rgb(33 150 243 / 30%) inset;
         }
       }
     }
@@ -1162,6 +1170,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -1171,6 +1180,7 @@
   0% {
     transform: translateY(0);
   }
+
   100% {
     transform: translateY(-100px);
   }
@@ -1178,10 +1188,11 @@
 
 @keyframes playerGlow {
   0% {
-    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.8));
+    filter: drop-shadow(0 0 10px rgb(0 255 255 / 80%));
   }
+
   100% {
-    filter: drop-shadow(0 0 20px rgba(0, 255, 255, 1));
+    filter: drop-shadow(0 0 20px rgb(0 255 255 / 100%));
   }
 }
 
@@ -1190,6 +1201,7 @@
   100% {
     transform: translate(-50%, -50%) translateY(0);
   }
+
   50% {
     transform: translate(-50%, -50%) translateY(-5px);
   }
@@ -1200,6 +1212,7 @@
   100% {
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     transform: translate(-50%, -50%) scale(1.1);
   }
@@ -1211,6 +1224,7 @@
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: 0.5;
     transform: translate(-50%, -50%) scale(1.5);
@@ -1223,15 +1237,16 @@
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
     box-shadow: 
-      0 0 12px rgba(0, 255, 0, 0.8),
-      0 0 20px rgba(0, 255, 0, 0.4);
+      0 0 12px rgb(0 255 0 / 80%),
+      0 0 20px rgb(0 255 0 / 40%);
   }
+
   50% {
     opacity: 0.8;
     transform: translate(-50%, -50%) scale(1.3);
     box-shadow: 
-      0 0 20px rgba(0, 255, 0, 1),
-      0 0 30px rgba(0, 255, 0, 0.6);
+      0 0 20px rgb(0 255 0 / 100%),
+      0 0 30px rgb(0 255 0 / 60%);
   }
 }
 
@@ -1241,6 +1256,7 @@
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: translate(-50%, -50%) scale(1.2);
@@ -1253,6 +1269,7 @@
     opacity: 0.6;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: 0.3;
     transform: translate(-50%, -50%) scale(1.1);
@@ -1264,12 +1281,15 @@
     transform: translate(-50%, -100%) rotate(0deg);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     transform: translate(-50%, -100%) rotate(360deg);
     opacity: 0;
@@ -1278,10 +1298,11 @@
 
 @keyframes bulletGlow {
   0% {
-    filter: drop-shadow(0 0 6px rgba(255, 255, 0, 0.8));
+    filter: drop-shadow(0 0 6px rgb(255 255 0 / 80%));
   }
+
   100% {
-    filter: drop-shadow(0 0 12px rgba(255, 255, 0, 1));
+    filter: drop-shadow(0 0 12px rgb(255 255 0 / 100%));
   }
 }
 
@@ -1289,20 +1310,21 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .left-panel,
   .right-panel {
     width: 180px;
   }
 }
 
-@media (max-width: 1000px) {
+@media (width <= 1000px) {
   .left-panel,
   .right-panel {
     width: 160px;

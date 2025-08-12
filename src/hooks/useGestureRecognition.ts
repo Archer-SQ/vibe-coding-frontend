@@ -178,12 +178,13 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       hands.setOptions({
         maxNumHands: 1,
         modelComplexity: 0, // 降低模型复杂度以提高性能
-        minDetectionConfidence: 0.7, // 提高检测置信度
-        minTrackingConfidence: 0.7, // 提高跟踪置信度
+        minDetectionConfidence: 0.6, // 适当降低检测置信度，提高稳定性
+        minTrackingConfidence: 0.6, // 适当降低跟踪置信度，提高稳定性
       })
 
       console.log('🎯 设置结果回调函数...');
       hands.onResults(onHandsResults)
+      
       handsRef.current = hands
       isMediaPipeInitializedRef.current = true
 
@@ -603,11 +604,20 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
 
     console.log('🎯 启动手势识别处理循环...');
 
+    // 添加处理标志，防止并发处理
+    let isProcessing = false
+
     const processFrame = async () => {
+      // 防止并发处理
+      if (isProcessing) {
+        animationFrameRef.current = requestAnimationFrame(processFrame)
+        return
+      }
+
       // 使用全局状态检查，确保状态一致性
       const globalStatus = cameraManager.getStatus()
       
-      if (!videoRef.current || !globalStatus.isActive || !handsRef.current) {
+      if (!videoRef.current || !globalStatus.isActive || !handsRef.current || !isMediaPipeInitializedRef.current) {
         console.log('🚫 手势识别循环条件不满足，停止处理');
         return
       }
@@ -620,19 +630,80 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
         return
       }
 
+      // 额外的安全检查：确保视频数据有效
       try {
-        // 发送视频帧到MediaPipe进行处理
-        await handsRef.current.send({ image: video })
-      } catch (error) {
-        // 只有在非预期错误时才更新错误状态
-        if (error instanceof Error && !error.message.includes('buffer')) {
-          console.error('❌ MediaPipe处理帧时出错:', error.message);
-          setCameraState(prev => ({
-            ...prev,
-            error: error.message
-          }))
+        // 检查视频是否暂停或结束
+        if (video.paused || video.ended) {
+          animationFrameRef.current = requestAnimationFrame(processFrame)
+          return
         }
-        // 对于 buffer 相关错误，静默处理，继续下一帧
+
+        // 检查视频时间戳是否有效
+        if (video.currentTime <= 0) {
+          animationFrameRef.current = requestAnimationFrame(processFrame)
+          return
+        }
+
+        isProcessing = true
+
+        // 创建一个安全的视频帧副本
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          isProcessing = false
+          animationFrameRef.current = requestAnimationFrame(processFrame)
+          return
+        }
+
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        
+        // 绘制当前帧到canvas
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        
+        // 发送canvas图像到MediaPipe进行处理
+        await handsRef.current.send({ image: canvas as any })
+        
+      } catch (error) {
+        // 处理各种可能的错误
+        if (error instanceof Error) {
+          const errorMessage = error.message.toLowerCase()
+          
+          // 内存访问错误 - 重新初始化MediaPipe
+          if (errorMessage.includes('memory access') || errorMessage.includes('out of bounds')) {
+            console.warn('🔄 检测到内存访问错误，重新初始化MediaPipe...');
+            isMediaPipeInitializedRef.current = false
+            handsRef.current = null
+            
+            // 延迟重新初始化
+            setTimeout(async () => {
+              try {
+                await initializeHands()
+                console.log('✅ MediaPipe重新初始化完成');
+              } catch (initError) {
+                console.error('❌ MediaPipe重新初始化失败:', initError);
+                setCameraState(prev => ({
+                  ...prev,
+                  error: '手势识别初始化失败，请刷新页面重试'
+                }))
+              }
+            }, 1000)
+            
+            isProcessing = false
+            return
+          }
+          
+          // 其他非关键错误，静默处理
+          if (!errorMessage.includes('buffer') && !errorMessage.includes('canvas')) {
+            console.error('❌ MediaPipe处理帧时出错:', error.message);
+            setCameraState(prev => ({
+              ...prev,
+              error: error.message
+            }))
+          }
+        }
+      } finally {
+        isProcessing = false
       }
 
       // 继续下一帧
@@ -640,7 +711,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     }
 
     processFrame()
-  }, [config.enableGesture, cameraState.isActive])
+  }, [config.enableGesture, cameraState.isActive, initializeHands])
 
   /**
    * 更新手势状态
