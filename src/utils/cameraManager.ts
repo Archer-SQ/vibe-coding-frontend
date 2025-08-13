@@ -42,7 +42,7 @@ class CameraManager {
 
       // 异步通知所有监听器
       setTimeout(() => {
-        this.callbacks.forEach((callback, index) => {
+        this.callbacks.forEach((callback) => {
           try {
             callback()
           } catch (error) {
@@ -111,7 +111,7 @@ class CameraManager {
 
     // 异步通知所有监听器
     setTimeout(() => {
-      this.callbacks.forEach((callback, index) => {
+      this.callbacks.forEach((callback) => {
         try {
           callback()
         } catch (error) {

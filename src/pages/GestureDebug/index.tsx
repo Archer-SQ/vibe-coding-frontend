@@ -28,7 +28,7 @@ const GestureDebug: React.FC = () => {
     gameControl,
     startCamera,
     stopCamera,
-    toggleGesture,
+    // toggleGesture,
     config,
     videoRef,
     stream
