@@ -16,22 +16,22 @@
   padding: 40px 30px;
   text-align: center;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 60%);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(255 255 255 / 12%);
 
   .confirm-icon {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: rgba(99, 102, 241, 0.3);
+    background: rgb(99 102 241 / 30%);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 24px;
     backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgb(255 255 255 / 15%);
+    box-shadow: 0 8px 16px rgb(0 0 0 / 30%);
 
     .icon-trophy,
     .icon-home {
@@ -53,15 +53,15 @@
     font-size: 24px;
     font-weight: 600;
     margin: 0 0 16px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 8px rgb(0 0 0 / 50%);
   }
 
   .confirm-description {
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(255 255 255 / 95%);
     font-size: 16px;
     line-height: 1.5;
     margin: 0 0 32px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 4px rgb(0 0 0 / 30%);
   }
 
   .confirm-buttons {
@@ -77,12 +77,12 @@
       border: none;
       background: linear-gradient(135deg, #7c3aed 0%, #6366f1 30%, #4f46e5 60%, #1e40af 100%);
       color: #fff;
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+      box-shadow: 0 4px 16px rgb(124 58 237 / 40%);
       transition: all 0.3s ease;
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.6);
+        box-shadow: 0 8px 20px rgb(124 58 237 / 60%);
         background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 30%, #6366f1 60%, #3b82f6 100%);
       }
 
@@ -100,18 +100,18 @@
       border-radius: 24px;
       font-size: 16px;
       font-weight: 500;
-      background: rgba(59, 130, 246, 0.2);
+      background: rgb(59 130 246 / 20%);
       color: #fff;
-      border: 2px solid rgba(255, 255, 255, 0.15);
+      border: 2px solid rgb(255 255 255 / 15%);
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
 
       &:hover {
-        background: rgba(59, 130, 246, 0.4);
-        border-color: rgba(255, 255, 255, 0.25);
+        background: rgb(59 130 246 / 40%);
+        border-color: rgb(255 255 255 / 25%);
         transform: translateY(-1px);
         color: #fff;
-        box-shadow: 0 4px 12px rgba(30, 27, 75, 0.4);
+        box-shadow: 0 4px 12px rgb(30 27 75 / 40%);
       }
 
       &:active {
@@ -126,7 +126,7 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .confirm-modal-content {
     padding: 30px 20px;
     margin: 20px;

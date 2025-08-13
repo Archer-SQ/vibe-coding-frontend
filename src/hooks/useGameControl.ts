@@ -32,6 +32,7 @@ interface UseGameControlReturn {
   gestureConfidence: number
   isGestureActive: boolean
   handPosition: { x: number; y: number }
+  gestureStatus: 'initializing' | 'active' | 'error' | 'inactive'
   
   // 摄像头状态
   isCameraActive: boolean
@@ -70,6 +71,7 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
     gestureState,
     handPosition,
     cameraState,
+    gestureStatus,
     startCamera,
     stopCamera,
     toggleGesture,
@@ -112,7 +114,7 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
   
   // 位置平滑处理
   const lastPositionRef = useRef<PlayerPosition>({ x: 50, y: 80 })
-  const smoothingFactor = 0.3 // 平滑因子，值越小越平滑
+  // const smoothingFactor = 0.3 // 平滑因子，值越小越平滑
 
   // 快速跟踪模式（用于手势重新进入时）
   const fastTrackingRef = useRef<{ active: boolean; startTime: number }>({ active: false, startTime: 0 })
@@ -172,8 +174,8 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
   /**
    * 更新移动边界
    */
-  const updateMovementBounds = useCallback((bounds: { minX: number; maxX: number; minY: number; maxY: number }): void => {
-    // 这里可以添加边界更新逻辑
+  const updateMovementBounds = useCallback((_bounds: { minX: number; maxX: number; minY: number; maxY: number }): void => {
+    // TODO: 实现边界更新逻辑
   }, [])
 
   /**
@@ -348,6 +350,7 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
     gestureConfidence: gestureState.confidence,
     isGestureActive: config.enableGesture,
     handPosition,
+    gestureStatus,
     
     // 摄像头状态
     isCameraActive: cameraState.isActive,

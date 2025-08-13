@@ -4,33 +4,32 @@ import request from '../../services/request'
 
 // 类型定义
 interface RankItem {
-  medal?: string
-  index: number
-  name: string
-  info: string
+  rank: number
+  deviceId: string
   score: number
+  updatedAt: string
 }
 
 interface PersonalInfo {
   rank: number
   score: number
-  createdAt: string
+  updatedAt: string
 }
 import './index.less'
 
 const rankTabs = [
-  { key: 'global', label: '全球榜' },
+  { key: 'all', label: '全球榜' },
   { key: 'weekly', label: '本周榜' },
 ]
 
 const defaultPersonal: PersonalInfo = {
   rank: 0,
   score: 0,
-  createdAt: '-',
+  updatedAt: '-',
 }
 
 const Rank: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('global')
+  const [activeTab, setActiveTab] = useState('all')
   const [rankData, setRankData] = useState<RankItem[]>([])
   const [personal, setPersonal] = useState<PersonalInfo>(defaultPersonal)
   const navigate = useNavigate()
@@ -39,30 +38,42 @@ const Rank: React.FC = () => {
     // 榜单数据请求
     const fetchRankData = async () => {
       try {
-        let rankData: RankItem[] = []
-        if (activeTab === 'global') {
-          const response = await request<{ list: RankItem[] }>({ url: '/api/rank/global', method: 'get' })
-          rankData = response.list || []
-        } else if (activeTab === 'weekly') {
-          const response = await request<{ list: RankItem[] }>({ url: '/api/rank/weekly', method: 'get' })
-          rankData = response.list || []
+        const response = await request<{
+          success: boolean
+          data: {
+            type: string
+            rankings: RankItem[]
+            count: number
+          }
+          timestamp: number
+        }>({ 
+          url: `/api/game/ranking?type=${activeTab}`, 
+          method: 'get' 
+        })
+        
+        if (response.success && response.data.rankings) {
+          setRankData(response.data.rankings)
+        } else {
+          setRankData([])
         }
-        setRankData(rankData)
       } catch (error) {
         // 获取排行榜数据失败时的错误处理
+        setRankData([])
       }
     }
     fetchRankData()
   }, [activeTab])
 
   useEffect(() => {
-    // 个人信息请求
+    // 个人信息请求 - 暂时使用模拟数据，因为API文档中没有个人信息接口
     const fetchPersonal = async () => {
       try {
-        const response = await request<{ info: PersonalInfo }>({ url: '/api/rank/personal', method: 'get' })
-        setPersonal(response.info || defaultPersonal)
+        // 这里可以根据需要实现个人最佳成绩的获取逻辑
+        // 目前使用默认值
+        setPersonal(defaultPersonal)
       } catch (error) {
         // 获取个人信息失败时的错误处理
+        setPersonal(defaultPersonal)
       }
     }
     fetchPersonal()
@@ -84,8 +95,8 @@ const Rank: React.FC = () => {
             <div className="rank-personal-value">{personal.score}</div>
           </div>
           <div className="rank-personal-item">
-            <div className="rank-personal-label">创建时间</div>
-            <div className="rank-personal-value">{personal.createdAt}</div>
+            <div className="rank-personal-label">更新时间</div>
+            <div className="rank-personal-value">{personal.updatedAt}</div>
           </div>
         </div>
         {/* 排行榜切换 */}
@@ -104,18 +115,18 @@ const Rank: React.FC = () => {
         <div className="rank-list scrollable">
           {rankData && rankData.length > 0 ? (
             rankData.slice(0, 10).map((item, idx) => (
-              <div className={`rank-list-item ${item.medal ? 'top' + (idx + 1) : ''}`} key={idx}>
-                {item.medal ? (
+              <div className={`rank-list-item ${idx < 3 ? 'top' + (idx + 1) : ''}`} key={item.deviceId}>
+                {idx < 3 ? (
                   <span
                     className={`rank-medal ${idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? 'bronze' : ''}`}
                   >
-                    {item.medal}
+                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}
                   </span>
                 ) : (
-                  <span className="rank-index">{item.index}</span>
+                  <span className="rank-index">{item.rank}</span>
                 )}
-                <span className="rank-name">{item.name}</span>
-                <span className="rank-info">{item.info}</span>
+                <span className="rank-name">玩家{item.deviceId.substring(0, 8)}</span>
+                <span className="rank-info">{new Date(item.updatedAt).toLocaleString()}</span>
                 <span className="rank-score">{item.score} 分数</span>
               </div>
             ))

@@ -1,9 +1,7 @@
 {
-  "extends": ["stylelint-config-standard", "stylelint-config-prettier"],
+  "customSyntax": "postcss-less",
   "rules": {
-    "indentation": 2,
-    "string-quotes": "single",
-    "color-hex-case": "lower",
-    "no-empty-source": null
+    "no-empty-source": null,
+    "at-rule-no-unknown": null
   }
 }

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback, memo, useState } from 'react'
-import { Button, Switch, Slider, Card, Alert, Modal, Space } from 'antd'
-import { CameraOutlined, VideoCameraOutlined, SettingOutlined, ExclamationCircleOutlined, ReloadOutlined, BugOutlined } from '@ant-design/icons'
+import { Button, Switch, Slider, Alert, Modal, Space, Card } from 'antd'
+import { CameraOutlined, VideoCameraOutlined, SettingOutlined, ReloadOutlined, BugOutlined } from '@ant-design/icons'
 import { useGameControl } from '../hooks/useGameControl'
 import { GestureType } from '../types/gesture'
 import { cameraManager } from '../utils/cameraManager'

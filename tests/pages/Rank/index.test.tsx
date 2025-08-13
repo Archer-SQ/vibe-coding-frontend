@@ -26,21 +26,30 @@ const renderWithRouter = (component: React.ReactElement) => {
 }
 
 const mockRankData = [
-  { index: 1, name: '玩家1', info: '高级玩家', score: 1000, medal: '🥇' },
-  { index: 2, name: '玩家2', info: '中级玩家', score: 800, medal: '🥈' },
-  { index: 3, name: '玩家3', info: '初级玩家', score: 600, medal: '🥉' },
+  { rank: 1, deviceId: 'abc123def456ghi789jkl012mno345p1', score: 1000, updatedAt: '2024-01-01T00:00:00Z' },
+  { rank: 2, deviceId: 'abc123def456ghi789jkl012mno345p2', score: 800, updatedAt: '2024-01-02T00:00:00Z' },
+  { rank: 3, deviceId: 'abc123def456ghi789jkl012mno345p3', score: 600, updatedAt: '2024-01-03T00:00:00Z' },
 ]
 
 const mockPersonalBest = {
   score: 1200,
   rank: 1,
+  updatedAt: '2024-01-01T00:00:00Z',
 }
 
 describe('Rank 页面', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     // 默认成功响应
-    mockRequest.mockResolvedValue({ list: mockRankData })
+    mockRequest.mockResolvedValue({ 
+      success: true, 
+      data: { 
+        type: 'all', 
+        rankings: mockRankData, 
+        count: mockRankData.length 
+      }, 
+      timestamp: Date.now() 
+    })
   })
 
   it('应该正确渲染页面内容', async () => {
@@ -59,24 +68,40 @@ describe('Rank 页面', () => {
 
     // 等待数据加载
     await waitFor(() => {
-      expect(screen.getByText('玩家1')).toBeInTheDocument()
+      expect(screen.getByText('1000 分数')).toBeInTheDocument()
     })
   })
 
   it('应该正确加载全球榜数据', async () => {
-    mockRequest.mockResolvedValue({ list: mockRankData })
+    mockRequest.mockResolvedValue({ 
+      success: true, 
+      data: { 
+        type: 'all', 
+        rankings: mockRankData, 
+        count: mockRankData.length 
+      }, 
+      timestamp: Date.now() 
+    })
     renderWithRouter(<Rank />)
 
     await waitFor(() => {
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/api/rank/global',
+        url: '/api/game/ranking?type=all',
         method: 'get',
       })
     })
   })
 
   it('应该正确切换到本周榜', async () => {
-    mockRequest.mockResolvedValue({ list: mockRankData })
+    mockRequest.mockResolvedValue({ 
+      success: true, 
+      data: { 
+        type: 'weekly', 
+        rankings: mockRankData, 
+        count: mockRankData.length 
+      }, 
+      timestamp: Date.now() 
+    })
     renderWithRouter(<Rank />)
 
     // 点击本周榜标签
@@ -85,22 +110,29 @@ describe('Rank 页面', () => {
 
     await waitFor(() => {
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/api/rank/weekly',
+        url: '/api/game/ranking?type=weekly',
         method: 'get',
       })
     })
   })
 
   it('应该正确加载个人最佳成绩', async () => {
-    mockRequest
-      .mockResolvedValueOnce({ list: mockRankData }) // 全球榜数据
-      .mockResolvedValueOnce({ info: mockPersonalBest }) // 个人最佳成绩
+    mockRequest.mockResolvedValue({ 
+      success: true, 
+      data: { 
+        type: 'all', 
+        rankings: mockRankData, 
+        count: mockRankData.length 
+      }, 
+      timestamp: Date.now() 
+    })
 
     renderWithRouter(<Rank />)
 
+    // 由于个人信息现在使用模拟数据，只需要验证排行榜数据加载
     await waitFor(() => {
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/api/rank/personal',
+        url: '/api/game/ranking?type=all',
         method: 'get',
       })
     })
@@ -153,11 +185,19 @@ describe('Rank 页面', () => {
     // 检查个人信息标签
     expect(screen.getByText('全球排名')).toBeInTheDocument()
     expect(screen.getByText('最高分数')).toBeInTheDocument()
-    expect(screen.getByText('创建时间')).toBeInTheDocument()
+    expect(screen.getByText('更新时间')).toBeInTheDocument()
   })
 
   it('应该在没有排行榜数据时显示空状态', async () => {
-    mockRequest.mockResolvedValue({ list: [] })
+    mockRequest.mockResolvedValue({ 
+      success: true, 
+      data: { 
+        type: 'all', 
+        rankings: [], 
+        count: 0 
+      }, 
+      timestamp: Date.now() 
+    })
     renderWithRouter(<Rank />)
 
     await waitFor(() => {

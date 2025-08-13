@@ -58,15 +58,16 @@ export interface GameControl {
 // 手势识别回调函数类型
 export type GestureCallback = (gesture: GestureState, position: HandPosition) => void
 
-// 手势识别hooks返回类型
+// Hook 返回值类型
 export interface UseGestureRecognitionReturn {
   // 状态
   gestureState: GestureState
   handPosition: HandPosition
   cameraState: CameraState
   gameControl: GameControl
+  gestureStatus: 'initializing' | 'active' | 'error' | 'inactive'
   
-  // 控制方法
+  // 方法
   startCamera: () => Promise<void>
   stopCamera: () => void
   toggleGesture: () => void
@@ -75,7 +76,7 @@ export interface UseGestureRecognitionReturn {
   // 配置
   config: GestureConfig
   
-  // 摄像头引用和流
+  // 视频流相关
   videoRef: React.RefObject<HTMLVideoElement>
   stream: MediaStream | null
 }

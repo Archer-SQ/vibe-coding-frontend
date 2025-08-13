@@ -10,7 +10,7 @@
   height: 100%;
   
   /* 添加轻微的阴影效果，让线条更清晰 */
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 50%));
 }
 
 /* 手势覆盖层容器 */
@@ -24,10 +24,10 @@
 /* 摄像头视频镜像效果 */
 .camera-video-mirrored {
   transform: scaleX(-1);
-  -webkit-transform: scaleX(-1);
-  -moz-transform: scaleX(-1);
-  -o-transform: scaleX(-1);
-  -ms-transform: scaleX(-1);
+  transform: scaleX(-1);
+  transform: scaleX(-1);
+  transform: scaleX(-1);
+  transform: scaleX(-1);
 }
 
 /* 手势信息提示 */
@@ -35,7 +35,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgb(0 0 0 / 70%);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -45,12 +45,12 @@
   pointer-events: none;
   
   .gesture-type {
-    color: #00ff00;
+    color: #0f0;
     font-weight: bold;
   }
   
   .gesture-confidence {
-    color: #ffff00;
+    color: #ff0;
     margin-left: 8px;
   }
 }
@@ -66,8 +66,8 @@
   z-index: 20;
   
   &.active {
-    background: #00ff00;
-    box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    background: #0f0;
+    box-shadow: 0 0 8px rgb(0 255 0 / 60%);
     animation: pulse 2s infinite;
   }
   
@@ -78,12 +78,14 @@
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    box-shadow: 0 0 8px rgb(0 255 0 / 60%);
   }
+
   50% {
-    box-shadow: 0 0 16px rgba(0, 255, 0, 0.8);
+    box-shadow: 0 0 16px rgb(0 255 0 / 80%);
   }
+
   100% {
-    box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    box-shadow: 0 0 8px rgb(0 255 0 / 60%);
   }
 }

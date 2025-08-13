@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react'
+import React, { useRef, useEffect, useMemo, useState } from 'react'
 import type { HandPosition } from '../types/gesture'
 
 interface GestureVisualizationProps {
   handPosition: HandPosition
+  gestureStatus?: 'initializing' | 'active' | 'error' | 'inactive'
   width?: number
   height?: number
   className?: string
@@ -47,6 +48,7 @@ const HAND_CONNECTIONS = [
  */
 export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
   handPosition,
+  gestureStatus = 'inactive',
   width = 200, // 调整默认宽度以适应左侧面板（240px - 32px padding = 208px可用空间）
   height = 150, // 相应调整高度保持比例
   className = '',
@@ -58,38 +60,19 @@ export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
   const stableLandmarks = useMemo(() => {
     const currentLandmarks = handPosition.landmarks || []
 
-    // 如果当前有有效的landmarks数据，直接返回
+    // 如果当前有有效的landmarks数据，更新缓存并返回
     if (currentLandmarks.length >= 21) {
+      setLastValidLandmarks(currentLandmarks)
       return currentLandmarks
     }
 
     // 如果当前没有有效数据，使用缓存的数据
     if (lastValidLandmarks && lastValidLandmarks.length >= 21) {
-      console.log('GestureVisualization - using cached landmarks')
       return lastValidLandmarks
     }
 
     return currentLandmarks
   }, [handPosition.landmarks, lastValidLandmarks])
-
-  // 使用 useEffect 来更新缓存，避免在 useMemo 中更新状态
-  useEffect(() => {
-    const currentLandmarks = handPosition.landmarks || []
-    if (currentLandmarks.length >= 21) {
-      setLastValidLandmarks(currentLandmarks)
-    } else if (currentLandmarks.length === 0) {
-      // 如果当前没有任何关键点数据，清空缓存
-      setLastValidLandmarks(null)
-    }
-  }, [handPosition.landmarks])
-
-  // 使用 useMemo 来稳定坐标数据
-  const stablePosition = useMemo(() => {
-    return {
-      x: handPosition.x,
-      y: handPosition.y,
-    }
-  }, [handPosition.x, handPosition.y])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -179,8 +162,8 @@ export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
     })
 
     // 绘制手部中心点（更大更明显）
-    const centerCanvasX = (1 - stablePosition.x) * canvas.width // 镜像X坐标
-    const centerCanvasY = stablePosition.y * canvas.height
+    const centerCanvasX = (1 - handPosition.x) * canvas.width // 镜像X坐标
+    const centerCanvasY = handPosition.y * canvas.height
 
     ctx.beginPath()
     ctx.arc(centerCanvasX, centerCanvasY, 5, 0, 2 * Math.PI)
@@ -199,7 +182,34 @@ export const GestureVisualization: React.FC<GestureVisualizationProps> = ({
     ctx.strokeStyle = '#00d4aa'
     ctx.lineWidth = 1
     ctx.stroke()
-  }, [stableLandmarks, stablePosition, width, height, lastValidLandmarks]) // 使用稳定的依赖项
+
+    // 绘制状态信息
+    const statusText = {
+      'initializing': '初始化中...',
+      'active': '手势识别中',
+      'error': '识别错误',
+      'inactive': '未启用'
+    }[gestureStatus]
+
+    const statusColor = {
+      'initializing': '#ffa500',
+      'active': '#00d4aa',
+      'error': '#ff4757',
+      'inactive': '#666'
+    }[gestureStatus]
+
+    ctx.font = '12px Arial'
+    ctx.fillStyle = statusColor
+    ctx.textAlign = 'center'
+    ctx.fillText(statusText, canvas.width / 2, canvas.height - 10)
+
+    // 如果使用缓存数据，显示提示
+    if (isUsingCached && stableLandmarks.length > 0) {
+      ctx.font = '10px Arial'
+      ctx.fillStyle = '#888'
+      ctx.fillText('(缓存数据)', canvas.width / 2, canvas.height - 25)
+    }
+  }, [stableLandmarks, handPosition.x, handPosition.y, width, height, lastValidLandmarks, gestureStatus]) // 使用稳定的依赖项
 
   return (
     <canvas
