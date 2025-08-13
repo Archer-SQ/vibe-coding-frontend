@@ -61,7 +61,7 @@ const updateRanks = (results: GameResult[]) => {
     medal: index < 3 ? ['🥇', '🥈', '🥉'][index] : undefined,
     index: index + 1,
     name: result.playerName || '玩家',
-    info: new Date(result.timestamp).toLocaleDateString(),
+    info: new Date(result.timestamp).toLocaleString(),
     score: result.score
   }));
 
@@ -74,7 +74,7 @@ const updateRanks = (results: GameResult[]) => {
     medal: index < 3 ? ['🥇', '🥈', '🥉'][index] : undefined,
     index: index + 1,
     name: result.playerName || '玩家',
-    info: new Date(result.timestamp).toLocaleDateString(),
+    info: new Date(result.timestamp).toLocaleString(),
     score: result.score
   }));
 
@@ -98,14 +98,14 @@ const updatePersonalInfo = (playerName: string, allResults: GameResult[]) => {
     const personalInfo = {
       rank,
       score: playerBest.score,
-      createdAt: new Date(playerBest.timestamp).toLocaleDateString()
+      updatedAt: new Date(playerBest.timestamp).toLocaleString()
     };
 
     sessionStorage.setItem(STORAGE_KEYS.PERSONAL_INFO, JSON.stringify(personalInfo));
     return { rank, personalInfo };
   }
   
-  return { rank: 0, personalInfo: { rank: 0, score: 0, createdAt: '-' } };
+  return { rank: 0, personalInfo: { rank: 0, score: 0, updatedAt: '-' } };
 };
 
 // 全球榜
@@ -154,7 +154,7 @@ Mock.mock('/api/rank/weekly', 'get', () => {
 Mock.mock('/api/rank/personal', 'get', () => {
   try {
     const stored = sessionStorage.getItem(STORAGE_KEYS.PERSONAL_INFO);
-    const info = stored ? JSON.parse(stored) : { rank: 0, score: 0, createdAt: '-' };
+    const info = stored ? JSON.parse(stored) : { rank: 0, score: 0, updatedAt: '-' };
     
     return {
       code: 0,
@@ -165,7 +165,7 @@ Mock.mock('/api/rank/personal', 'get', () => {
     console.error('获取个人信息失败:', error);
     return {
       code: 0,
-      data: { info: { rank: 0, score: 0, createdAt: '-' } },
+      data: { info: { rank: 0, score: 0, updatedAt: '-' } },
       msg: 'success'
     };
   }

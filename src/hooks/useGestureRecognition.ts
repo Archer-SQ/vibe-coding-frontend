@@ -75,6 +75,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     timestamp: Date.now(),
   })
 
+  const [gestureStatus, setGestureStatus] = useState<'initializing' | 'active' | 'error' | 'inactive'>('inactive')
+
   const [handPosition, setHandPosition] = useState<HandPosition>({
     x: 0.5,
     y: 0.5,
@@ -141,7 +143,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
           console.log('🔄 从CDN加载MediaPipe脚本...');
           await new Promise((resolve, reject) => {
             const script = document.createElement('script')
-            script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js'
+            // 使用稳定版本的MediaPipe，避免Module.arguments错误
+            script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js'
             script.onload = () => {
               console.log('✅ CDN脚本加载成功');
               resolve(undefined);
@@ -165,7 +168,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       console.log('🔄 创建MediaPipe Hands实例...');
       const hands = new HandsConstructor({
         locateFile: (file: string) => {
-          const url = `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+          // 使用稳定版本的MediaPipe资源文件
+          const url = `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`;
           // 只在首次加载时打印文件信息，避免重复打印
           if (file === 'hands_solution_simd_wasm_bin.js') {
             console.log(`📁 加载MediaPipe核心文件: ${file}`);
@@ -189,6 +193,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       isMediaPipeInitializedRef.current = true
 
       console.log('✅ MediaPipe初始化完成');
+      setGestureStatus('active')
       return hands
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'MediaPipe初始化失败'
@@ -201,6 +206,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
         hasGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
       })
       
+      setGestureStatus('error')
       setCameraState(prev => ({
         ...prev,
         error: `${errorMessage}\n\n环境检查:\n- 协议: ${location.protocol}\n- 域名: ${location.hostname}\n- MediaDevices支持: ${navigator.mediaDevices ? '是' : '否'}`
@@ -419,23 +425,27 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       // 检查是否已经启动，避免重复初始化
       const globalStatus = cameraManager.getStatus()
       if (globalStatus.isActive && handsRef.current && isMediaPipeInitializedRef.current) {
-        console.log('📹 摄像头和MediaPipe已经启动，跳过重复初始化');
+        console.log('📹 摄像头和MediaPipe已经启动，强制同步状态');
         setCameraState({
           isConnected: true,
           isActive: true,
         })
+        streamRef.current = globalStatus.stream
         // 确保手势识别也在运行
-        setTimeout(() => {
-          startGestureRecognition()
-        }, 100)
+        if (config.enableGesture) {
+          setTimeout(() => {
+            startGestureRecognition()
+          }, 100)
+        }
         return
       }
 
       console.log('🚀 开始启动摄像头和手势识别...');
+      setGestureStatus('initializing')
       
-      // 只有在需要时才清理旧的MediaPipe实例
-      if (handsRef.current && !isMediaPipeInitializedRef.current) {
-        console.log('🧹 清理旧的MediaPipe实例...');
+      // 强制清理旧的MediaPipe实例，确保干净的状态
+      if (handsRef.current) {
+        console.log('🧹 强制清理旧的MediaPipe实例...');
         try {
           handsRef.current.close()
         } catch (error) {
@@ -464,19 +474,27 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
           streamRef.current = stream
           console.log('✅ 视频流绑定成功');
 
-          // 等待视频元素准备好
+          // 等待视频元素准备好，增加超时保护
           console.log('⏳ 等待视频数据加载...');
           await new Promise<void>((resolve) => {
             const video = videoRef.current!
             
+            const timeout = setTimeout(() => {
+              console.log('⏰ 视频加载超时，继续执行');
+              video.removeEventListener('loadeddata', onLoadedData)
+              resolve()
+            }, 3000) // 3秒超时
+            
             const onLoadedData = () => {
               console.log('✅ 视频数据加载完成');
+              clearTimeout(timeout)
               video.removeEventListener('loadeddata', onLoadedData)
               resolve()
             }
             
             if (video.readyState >= 2) {
               console.log('✅ 视频已经准备就绪');
+              clearTimeout(timeout)
               resolve()
             } else {
               video.addEventListener('loadeddata', onLoadedData)
@@ -514,6 +532,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       console.log('🎉 摄像头和手势识别启动完成!');
     } catch (error) {
         console.error('❌ 摄像头启动失败:', error);
+        setGestureStatus('error')
         setCameraState(prev => ({
           ...prev,
           isActive: false,
@@ -561,6 +580,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       isConnected: false,
       isActive: false,
     })
+    setGestureStatus('inactive')
     streamRef.current = null
     
     console.log('✅ 摄像头和手势识别已停止');
@@ -575,10 +595,12 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     
     // 如果本地状态与全局状态不一致，强制同步
     if (cameraState.isActive !== globalStatus.isActive) {
+      console.log('🔄 同步摄像头状态:', { local: cameraState.isActive, global: globalStatus.isActive });
       setCameraState({
         isConnected: globalStatus.isActive,
         isActive: globalStatus.isActive,
       })
+      streamRef.current = globalStatus.stream
     }
 
     if (!config.enableGesture) {
@@ -591,8 +613,18 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       return
     }
     
-    if (!handsRef.current) {
-      console.log('🚫 MediaPipe未初始化，跳过手势识别启动');
+    if (!handsRef.current || !isMediaPipeInitializedRef.current) {
+      console.log('🚫 MediaPipe未初始化，尝试重新初始化...');
+      // 尝试重新初始化MediaPipe
+      setTimeout(async () => {
+        try {
+          await initializeHands()
+          console.log('✅ MediaPipe重新初始化完成，重新启动手势识别');
+          startGestureRecognition()
+        } catch (error) {
+          console.error('❌ MediaPipe重新初始化失败:', error);
+        }
+      }, 1000)
       return
     }
 
@@ -606,6 +638,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
 
     // 添加处理标志，防止并发处理
     let isProcessing = false
+    let consecutiveErrors = 0
+    const maxConsecutiveErrors = 5
 
     const processFrame = async () => {
       // 防止并发处理
@@ -615,9 +649,9 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       }
 
       // 使用全局状态检查，确保状态一致性
-      const globalStatus = cameraManager.getStatus()
+      const currentGlobalStatus = cameraManager.getStatus()
       
-      if (!videoRef.current || !globalStatus.isActive || !handsRef.current || !isMediaPipeInitializedRef.current) {
+      if (!videoRef.current || !currentGlobalStatus.isActive || !handsRef.current || !isMediaPipeInitializedRef.current) {
         console.log('🚫 手势识别循环条件不满足，停止处理');
         return
       }
@@ -631,43 +665,65 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
       }
 
       // 额外的安全检查：确保视频数据有效
-      try {
-        // 检查视频是否暂停或结束
-        if (video.paused || video.ended) {
-          animationFrameRef.current = requestAnimationFrame(processFrame)
-          return
-        }
+        try {
+          // 检查视频是否暂停或结束
+          if (video.paused || video.ended) {
+            animationFrameRef.current = requestAnimationFrame(processFrame)
+            return
+          }
 
-        // 检查视频时间戳是否有效
-        if (video.currentTime <= 0) {
-          animationFrameRef.current = requestAnimationFrame(processFrame)
-          return
-        }
+          // 检查视频时间戳是否有效
+          if (video.currentTime <= 0) {
+            animationFrameRef.current = requestAnimationFrame(processFrame)
+            return
+          }
 
-        isProcessing = true
+          isProcessing = true
 
-        // 创建一个安全的视频帧副本
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        if (!ctx) {
-          isProcessing = false
-          animationFrameRef.current = requestAnimationFrame(processFrame)
-          return
-        }
-
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        
-        // 绘制当前帧到canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        
-        // 发送canvas图像到MediaPipe进行处理
-        await handsRef.current.send({ image: canvas as any })
+          // 简化处理流程：直接发送视频元素到MediaPipe
+          if (video.readyState >= 2 && 
+              video.videoWidth > 0 && 
+              video.videoHeight > 0) {
+            await handsRef.current.send({ image: video })
+            consecutiveErrors = 0 // 重置错误计数
+          } else {
+            // 视频未准备好，跳过这一帧
+            isProcessing = false
+            animationFrameRef.current = requestAnimationFrame(processFrame)
+            return
+          }
         
       } catch (error) {
+        consecutiveErrors++
+        
         // 处理各种可能的错误
         if (error instanceof Error) {
           const errorMessage = error.message.toLowerCase()
+          
+          // Module.arguments错误 - MediaPipe版本兼容性问题
+          if (errorMessage.includes('module.arguments') || errorMessage.includes('arguments_')) {
+            console.warn('🔄 检测到MediaPipe版本兼容性错误，尝试重新初始化...');
+            isMediaPipeInitializedRef.current = false
+            handsRef.current = null
+            
+            // 延迟重新初始化，使用更保守的配置
+            setTimeout(async () => {
+              try {
+                await initializeHands()
+                console.log('✅ MediaPipe重新初始化完成');
+                startGestureRecognition() // 重新启动手势识别
+              } catch (initError) {
+                console.error('❌ MediaPipe重新初始化失败:', initError);
+                setCameraState(prev => ({
+                  ...prev,
+                  error: 'MediaPipe版本兼容性问题，请刷新页面重试或使用Chrome浏览器'
+                }))
+              }
+            }, 1000)
+            
+            isProcessing = false
+            return
+          }
           
           // 内存访问错误 - 重新初始化MediaPipe
           if (errorMessage.includes('memory access') || errorMessage.includes('out of bounds')) {
@@ -680,6 +736,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
               try {
                 await initializeHands()
                 console.log('✅ MediaPipe重新初始化完成');
+                startGestureRecognition() // 重新启动手势识别
               } catch (initError) {
                 console.error('❌ MediaPipe重新初始化失败:', initError);
                 setCameraState(prev => ({
@@ -693,13 +750,20 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
             return
           }
           
-          // 其他非关键错误，静默处理
-          if (!errorMessage.includes('buffer') && !errorMessage.includes('canvas')) {
-            console.error('❌ MediaPipe处理帧时出错:', error.message);
+          // 如果连续错误过多，停止处理
+          if (consecutiveErrors >= maxConsecutiveErrors) {
+            console.error('❌ 连续错误过多，停止手势识别');
             setCameraState(prev => ({
               ...prev,
-              error: error.message
+              error: '手势识别出现连续错误，请刷新页面重试'
             }))
+            isProcessing = false
+            return
+          }
+          
+          // 其他非关键错误，静默处理
+          if (!errorMessage.includes('buffer') && !errorMessage.includes('canvas')) {
+            console.warn('⚠️ MediaPipe处理帧时出错:', error.message);
           }
         }
       } finally {
@@ -853,21 +917,36 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     // 使用全局状态检查，确保状态一致性
     const globalStatus = cameraManager.getStatus()
     
+    // 确保清理之前的动画帧
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+    
     if (config.enableGesture && globalStatus.isActive) {
-      // 确保清理之前的动画帧
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-        animationFrameRef.current = null
+      console.log('🎯 准备启动手势识别...', { enableGesture: config.enableGesture, isActive: globalStatus.isActive, mediaInitialized: isMediaPipeInitializedRef.current });
+      
+      // 延迟启动，确保状态同步和MediaPipe初始化完成
+      const timer = setTimeout(() => {
+        // 再次检查状态，确保在延迟期间状态没有改变
+        const currentGlobalStatus = cameraManager.getStatus()
+        if (config.enableGesture && currentGlobalStatus.isActive) {
+          console.log('🚀 延迟启动手势识别');
+          startGestureRecognition()
+        } else {
+          console.log('🚫 延迟启动时状态已改变，取消启动');
+        }
+      }, 200) // 增加延迟时间，确保MediaPipe完全初始化
+
+      return () => {
+        clearTimeout(timer)
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current)
+          animationFrameRef.current = null
+        }
       }
-      // 延迟启动手势识别，确保状态同步
-      setTimeout(() => {
-        startGestureRecognition()
-      }, 100)
     } else {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-        animationFrameRef.current = null
-      }
+      console.log('🛑 手势识别条件不满足', { enableGesture: config.enableGesture, isActive: globalStatus.isActive });
     }
   }, [config.enableGesture, cameraState.isActive, startGestureRecognition])
 
@@ -877,6 +956,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     handPosition,
     cameraState,
     gameControl,
+    gestureStatus,
 
     // 控制方法
     startCamera,

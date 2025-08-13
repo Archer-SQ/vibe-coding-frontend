@@ -99,6 +99,7 @@ describe('CameraPreview', () => {
     gestureConfidence: 0.8,
     isGestureActive: false,
     handPosition: { x: 0, y: 0 },
+    gestureStatus: 'inactive' as const,
     
     // 摄像头状态
     isCameraActive: false,

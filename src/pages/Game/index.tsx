@@ -126,6 +126,7 @@ const Game: React.FC = () => {
     cameraError,
     handPosition,
     cameraState,
+    gestureStatus,
     startGestureControl,
     stopGestureControl,
     resetPlayerPosition,
@@ -240,7 +241,6 @@ const Game: React.FC = () => {
             
             // 如果生命值归零且游戏尚未结束，触发游戏结束
             if (newLives <= 0 && !gameEndedRef.current) {
-              gameEndedRef.current = true // 设置游戏结束标志
               // 延迟一帧触发游戏结束，确保状态更新完成
               setTimeout(() => {
                 endGame()
@@ -414,6 +414,11 @@ const Game: React.FC = () => {
   }
 
   const endGame = async () => {
+    // 防止重复提交，如果游戏结束模态框已经显示则直接返回
+    if (showGameOverModal) {
+      return
+    }
+
     // 设置游戏状态为结束
     setGameState(prev => ({
       ...prev,
@@ -434,36 +439,41 @@ const Game: React.FC = () => {
     }
     isShootingRef.current = false
 
-    // 提交游戏成绩
-    try {
-      const { getOrCreateDeviceId } = await import('../../utils/deviceUtils')
-      const deviceId = getOrCreateDeviceId()
+    // 提交游戏成绩（只提交一次）
+    if (!gameEndedRef.current) {
+      gameEndedRef.current = true // 设置游戏结束标志，防止重复提交
       
-      const gameResult = {
-        deviceId,
-        score: gameState.score
-      }
-      
-      const result = await request<{
-        success: boolean
-        data: {
-          recordId: string
-          isNewBest: boolean
-          currentBest: number
-          message: string
+      try {
+        const { getOrCreateDeviceId } = await import('../../utils/deviceUtils')
+        const deviceId = getOrCreateDeviceId()
+        
+        const gameResult = {
+          deviceId,
+          score: gameState.score
         }
-        timestamp: number
-      }>({
-        url: '/api/game/submit',
-        method: 'post',
-        data: gameResult
-      })
-      
-      if (result.success && result.data.isNewBest) {
-        console.log('新纪录！', result.data.message)
+        
+        const result = await request<{
+          success: boolean
+          data: {
+            recordId: string
+            isNewBest: boolean
+            currentBest: number
+            message: string
+          }
+          timestamp: number
+        }>({
+          url: '/api/game/submit',
+          method: 'post',
+          data: gameResult
+        })
+        
+        if (result.success && result.data.isNewBest) {
+          console.log('新纪录！', result.data.message)
+        }
+      } catch (error) {
+        // 错误已经在request服务中通过message.error显示给用户了
+        console.error('提交游戏成绩失败:', error)
       }
-    } catch (error) {
-      // 错误已经在request服务中通过message.error显示给用户了
     }
 
     // 关闭模态框并显示游戏结束模态框
@@ -721,7 +731,12 @@ const Game: React.FC = () => {
             <div className="panel-content">
               {/* 手势可视化区域 */}
               <div className="gesture-visualization-area">
-                <GestureVisualization handPosition={handPosition} width={200} height={150} />
+                <GestureVisualization 
+                  handPosition={handPosition} 
+                  gestureStatus={gestureStatus}
+                  width={200} 
+                  height={150} 
+                />
               </div>
 
               {/* 状态信息区域 */}

@@ -75,26 +75,24 @@ VITE_API_BASE_URL=https://api.yourdomain.com
 
 ### 2. 获取排行榜
 
-**原接口**: 
-- `/api/rank/global` (总榜)
-- `/api/rank/weekly` (周榜)
+**接口地址**: `GET /api/game/ranking`
 
-**新接口**: `/api/game/ranking?type={all|weekly}`
+**查询参数**:
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| type | string | 否 | all | 排行榜类型: `all`(总榜) 或 `weekly`(周榜) |
 
-**响应数据变更**:
+**请求示例**:
+```bash
+# 获取总榜前十
+curl "http://localhost:3000/api/game/ranking?type=all"
+
+# 获取周榜前十
+curl "http://localhost:3000/api/game/ranking?type=weekly"
+```
+
+**响应数据格式**:
 ```typescript
-// 原格式
-{
-  list: Array<{
-    medal?: string,
-    index: number,
-    name: string,
-    info: string,
-    score: number
-  }>
-}
-
-// 新格式
 {
   success: boolean,
   data: {
@@ -103,11 +101,37 @@ VITE_API_BASE_URL=https://api.yourdomain.com
       rank: number,
       deviceId: string,
       score: number,
-      createdAt: string
+      updatedAt: string
     }>,
     count: number
   },
   timestamp: number
+}
+```
+
+**响应示例**:
+```json
+{
+  "success": true,
+  "data": {
+    "type": "all",
+    "rankings": [
+      {
+        "rank": 1,
+        "deviceId": "abc123def456ghi789jkl012mno345pq",
+        "score": 25600,
+        "updatedAt": "2024-01-15T10:30:00.000Z"
+      },
+      {
+        "rank": 2,
+        "deviceId": "def456ghi789jkl012mno345pqabc123",
+        "score": 23400,
+        "updatedAt": "2024-01-14T15:20:00.000Z"
+      }
+    ],
+    "count": 10
+  },
+  "timestamp": 1703123456789
 }
 ```
 

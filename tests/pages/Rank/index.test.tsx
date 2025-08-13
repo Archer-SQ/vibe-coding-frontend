@@ -26,15 +26,15 @@ const renderWithRouter = (component: React.ReactElement) => {
 }
 
 const mockRankData = [
-  { rank: 1, deviceId: 'abc123def456ghi789jkl012mno345p1', score: 1000, createdAt: '2024-01-01T00:00:00Z' },
-  { rank: 2, deviceId: 'abc123def456ghi789jkl012mno345p2', score: 800, createdAt: '2024-01-02T00:00:00Z' },
-  { rank: 3, deviceId: 'abc123def456ghi789jkl012mno345p3', score: 600, createdAt: '2024-01-03T00:00:00Z' },
+  { rank: 1, deviceId: 'abc123def456ghi789jkl012mno345p1', score: 1000, updatedAt: '2024-01-01T00:00:00Z' },
+  { rank: 2, deviceId: 'abc123def456ghi789jkl012mno345p2', score: 800, updatedAt: '2024-01-02T00:00:00Z' },
+  { rank: 3, deviceId: 'abc123def456ghi789jkl012mno345p3', score: 600, updatedAt: '2024-01-03T00:00:00Z' },
 ]
 
 const mockPersonalBest = {
   score: 1200,
   rank: 1,
-  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z',
 }
 
 describe('Rank 页面', () => {
@@ -185,7 +185,7 @@ describe('Rank 页面', () => {
     // 检查个人信息标签
     expect(screen.getByText('全球排名')).toBeInTheDocument()
     expect(screen.getByText('最高分数')).toBeInTheDocument()
-    expect(screen.getByText('创建时间')).toBeInTheDocument()
+    expect(screen.getByText('更新时间')).toBeInTheDocument()
   })
 
   it('应该在没有排行榜数据时显示空状态', async () => {

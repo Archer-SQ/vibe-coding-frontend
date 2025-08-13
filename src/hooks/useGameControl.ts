@@ -32,6 +32,7 @@ interface UseGameControlReturn {
   gestureConfidence: number
   isGestureActive: boolean
   handPosition: { x: number; y: number }
+  gestureStatus: 'initializing' | 'active' | 'error' | 'inactive'
   
   // 摄像头状态
   isCameraActive: boolean
@@ -70,6 +71,7 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
     gestureState,
     handPosition,
     cameraState,
+    gestureStatus,
     startCamera,
     stopCamera,
     toggleGesture,
@@ -348,6 +350,7 @@ export const useGameControl = (gameState: { isPlaying: boolean; isPaused: boolea
     gestureConfidence: gestureState.confidence,
     isGestureActive: config.enableGesture,
     handPosition,
+    gestureStatus,
     
     // 摄像头状态
     isCameraActive: cameraState.isActive,

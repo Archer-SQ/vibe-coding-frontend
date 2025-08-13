@@ -7,13 +7,13 @@ interface RankItem {
   rank: number
   deviceId: string
   score: number
-  createdAt: string
+  updatedAt: string
 }
 
 interface PersonalInfo {
   rank: number
   score: number
-  createdAt: string
+  updatedAt: string
 }
 import './index.less'
 
@@ -25,7 +25,7 @@ const rankTabs = [
 const defaultPersonal: PersonalInfo = {
   rank: 0,
   score: 0,
-  createdAt: '-',
+  updatedAt: '-',
 }
 
 const Rank: React.FC = () => {
@@ -95,8 +95,8 @@ const Rank: React.FC = () => {
             <div className="rank-personal-value">{personal.score}</div>
           </div>
           <div className="rank-personal-item">
-            <div className="rank-personal-label">创建时间</div>
-            <div className="rank-personal-value">{personal.createdAt}</div>
+            <div className="rank-personal-label">更新时间</div>
+            <div className="rank-personal-value">{personal.updatedAt}</div>
           </div>
         </div>
         {/* 排行榜切换 */}
@@ -126,7 +126,7 @@ const Rank: React.FC = () => {
                   <span className="rank-index">{item.rank}</span>
                 )}
                 <span className="rank-name">玩家{item.deviceId.substring(0, 8)}</span>
-                <span className="rank-info">{new Date(item.createdAt).toLocaleDateString()}</span>
+                <span className="rank-info">{new Date(item.updatedAt).toLocaleString()}</span>
                 <span className="rank-score">{item.score} 分数</span>
               </div>
             ))
