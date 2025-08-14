@@ -1,0 +1,84 @@
+name: 自动部署到Vercel
+
+# 触发条件：当代码推送到main分支时
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# 环境变量
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # 代码质量检查和测试
+  test:
+    runs-on: ubuntu-latest
+    name: 代码质量检查和测试
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置Node.js环境
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 安装pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
+    - name: 安装依赖
+      run: pnpm install
+      
+    - name: 代码格式检查
+      run: pnpm run lint
+      
+    - name: 样式检查
+      run: pnpm run lint:style
+      
+    - name: 运行单元测试
+      run: pnpm run test:ci
+      
+    - name: 构建项目
+      run: pnpm run build
+
+  # 部署到Vercel（仅在main分支推送时执行）
+  deploy:
+    runs-on: ubuntu-latest
+    name: 部署到Vercel
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 安装Vercel CLI
+      run: npm install --global vercel@latest
+      
+    - name: 拉取Vercel环境信息
+      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      
+    - name: 构建项目
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+    - name: 部署到Vercel
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+    - name: 部署成功通知
+      if: success()
+      run: |
+        echo "🎉 部署成功！"
+        echo "生产环境地址：https://vibe-coding-frontend.vercel.app"
+        
+    - name: 部署失败通知
+      if: failure()
+      run: |
+        echo "❌ 部署失败，请检查日志"
+        exit 1
