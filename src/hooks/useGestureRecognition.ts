@@ -128,22 +128,15 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
     try {
       let HandsConstructor: new (options: { locateFile: (file: string) => string }) => Hands;
 
-      // 优先尝试使用本地安装的MediaPipe包
-      try {
-        console.log('🔄 尝试加载本地MediaPipe包...');
-        const { Hands } = await import('@mediapipe/hands');
-        HandsConstructor = Hands as any;
-        console.log('✅ 成功使用本地MediaPipe包');
-      } catch (localError) {
-        console.warn('❌ 本地MediaPipe包加载失败，尝试CDN加载:', localError);
+      // 在生产环境中直接使用CDN加载，避免打包问题
+      if (process.env.NODE_ENV === 'production') {
+        console.log('🔄 生产环境：直接使用CDN加载MediaPipe...');
         
-        // 回退到CDN加载
-        console.log('🔄 检查CDN MediaPipe是否已加载...');
-        if (!(window as Window & typeof globalThis & { Hands?: () => void }).Hands) {
+        // 确保CDN脚本已加载
+        if (!(window as Window & typeof globalThis & { Hands?: any }).Hands) {
           console.log('🔄 从CDN加载MediaPipe脚本...');
           await new Promise((resolve, reject) => {
             const script = document.createElement('script')
-            // 使用稳定版本的MediaPipe，避免Module.arguments错误
             script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js'
             script.onload = () => {
               console.log('✅ CDN脚本加载成功');
@@ -157,22 +150,70 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
           })
         }
 
-        const WindowHands = (window as Window & typeof globalThis & { Hands?: new (options: { locateFile: (file: string) => string }) => Hands }).Hands;
-         if (!WindowHands) {
-           throw new Error('MediaPipe Hands CDN加载失败 - window.Hands未定义');
-         }
-         HandsConstructor = WindowHands;
-        console.log('✅ 成功使用CDN MediaPipe包');
+        const WindowHands = (window as Window & typeof globalThis & { Hands?: any }).Hands;
+        if (!WindowHands) {
+          throw new Error('MediaPipe Hands CDN加载失败 - window.Hands未定义');
+        }
+        
+        if (typeof WindowHands !== 'function') {
+          throw new Error('CDN MediaPipe Hands不是有效的构造函数');
+        }
+        
+        HandsConstructor = WindowHands;
+        console.log('✅ 生产环境成功使用CDN MediaPipe包');
+      } else {
+        // 开发环境优先尝试使用本地安装的MediaPipe包
+        try {
+          console.log('🔄 开发环境：尝试加载本地MediaPipe包...');
+          const mediapipeModule = await import('@mediapipe/hands');
+          const { Hands } = mediapipeModule;
+          
+          if (typeof Hands !== 'function') {
+            throw new Error('本地MediaPipe Hands不是有效的构造函数');
+          }
+          
+          HandsConstructor = Hands as any;
+          console.log('✅ 开发环境成功使用本地MediaPipe包');
+        } catch (localError) {
+          console.warn('❌ 本地MediaPipe包加载失败，回退到CDN:', localError);
+          
+          // 回退到CDN加载
+          if (!(window as Window & typeof globalThis & { Hands?: any }).Hands) {
+            console.log('🔄 从CDN加载MediaPipe脚本...');
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script')
+              script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js'
+              script.onload = () => {
+                console.log('✅ CDN脚本加载成功');
+                resolve(undefined);
+              }
+              script.onerror = (error) => {
+                console.error('❌ CDN脚本加载失败:', error);
+                reject(error);
+              }
+              document.head.appendChild(script)
+            })
+          }
+
+          const WindowHands = (window as Window & typeof globalThis & { Hands?: any }).Hands;
+          if (!WindowHands || typeof WindowHands !== 'function') {
+            throw new Error('CDN MediaPipe Hands加载失败或不是有效的构造函数');
+          }
+          
+          HandsConstructor = WindowHands;
+          console.log('✅ 开发环境回退使用CDN MediaPipe包');
+        }
       }
 
       console.log('🔄 创建MediaPipe Hands实例...');
+      
       const hands = new HandsConstructor({
         locateFile: (file: string) => {
-          // 使用稳定版本的MediaPipe资源文件
-          const url = `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`;
-          // 只在首次加载时打印文件信息，避免重复打印
+          // 避免模板字符串在打包时被错误处理，使用字符串拼接
+          const baseUrl = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/';
+          const url = baseUrl + file;
           if (file === 'hands_solution_simd_wasm_bin.js') {
-            console.log(`📁 加载MediaPipe核心文件: ${file}`);
+            console.log('📁 加载MediaPipe核心文件: ' + file);
           }
           return url;
         },
@@ -248,6 +289,8 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
         setHandPosition(preservedPosition)
         return
       }
+
+      // 检测到手部，处理关键点数据
 
       const landmarks = results.multiHandLandmarks[0]
 
@@ -687,6 +730,7 @@ export const useGestureRecognition = (): UseGestureRecognitionReturn => {
             await handsRef.current.send({ image: video })
             consecutiveErrors = 0 // 重置错误计数
           } else {
+            // 视频未准备好，跳过这一帧
             // 视频未准备好，跳过这一帧
             isProcessing = false
             animationFrameRef.current = requestAnimationFrame(processFrame)
