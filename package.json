@@ -30,7 +30,8 @@
     "flow:hotfix:finish": "git flow hotfix finish",
     "vercel-build": "pnpm build",
     "deploy": "vercel",
-    "deploy:prod": "vercel --prod"
+    "deploy:prod": "vercel --prod",
+    "setup:deploy": "./scripts/setup-deploy.sh"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
