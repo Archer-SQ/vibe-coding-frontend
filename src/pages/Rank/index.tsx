@@ -65,19 +65,56 @@ const Rank: React.FC = () => {
   }, [activeTab])
 
   useEffect(() => {
-    // 个人信息请求 - 暂时使用模拟数据，因为API文档中没有个人信息接口
+    // 个人信息获取 - 从排行榜数据中查找当前设备的排名
     const fetchPersonal = async () => {
       try {
-        // 这里可以根据需要实现个人最佳成绩的获取逻辑
-        // 目前使用默认值
-        setPersonal(defaultPersonal)
+        const { getOrCreateDeviceId } = await import('../../utils/deviceUtils')
+        const currentDeviceId = getOrCreateDeviceId()
+        
+        // 从全球榜中查找当前设备的排名信息
+        const response = await request<{
+          success: boolean
+          data: {
+            type: string
+            rankings: RankItem[]
+            count: number
+          }
+          timestamp: number
+        }>({ 
+          url: '/api/game/ranking?type=all', 
+          method: 'get' 
+        })
+        
+        if (response.success && response.data.rankings) {
+          // 查找当前设备在排行榜中的位置
+          const currentPlayerRank = response.data.rankings.find(
+            item => item.deviceId === currentDeviceId
+          )
+          
+          if (currentPlayerRank) {
+            setPersonal({
+              rank: currentPlayerRank.rank,
+              score: currentPlayerRank.score,
+              updatedAt: new Date(currentPlayerRank.updatedAt).toLocaleString()
+            })
+          } else {
+            // 如果在排行榜中没有找到，说明还没有提交过成绩
+            setPersonal({
+              rank: 0,
+              score: 0,
+              updatedAt: '暂无记录'
+            })
+          }
+        } else {
+          setPersonal(defaultPersonal)
+        }
       } catch (error) {
-        // 获取个人信息失败时的错误处理
+        console.error('获取个人排名信息失败:', error)
         setPersonal(defaultPersonal)
       }
     }
     fetchPersonal()
-  }, [])
+  }, [activeTab])
 
   return (
     <div className="rank-bg">
@@ -88,11 +125,11 @@ const Rank: React.FC = () => {
         <div className="rank-personal">
           <div className="rank-personal-item">
             <div className="rank-personal-label">全球排名</div>
-            <div className="rank-personal-value">{personal.rank}</div>
+            <div className="rank-personal-value">{personal.rank === 0 ? '未上榜' : `第${personal.rank}名`}</div>
           </div>
           <div className="rank-personal-item">
             <div className="rank-personal-label">最高分数</div>
-            <div className="rank-personal-value">{personal.score}</div>
+            <div className="rank-personal-value">{personal.score === 0 ? '暂无记录' : `${personal.score}分`}</div>
           </div>
           <div className="rank-personal-item">
             <div className="rank-personal-label">更新时间</div>
